@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Card Service - Capabilities Analysis</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; background: white; }
+        header {
+            border-bottom: 4px solid #0066cc;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+        }
+        h1 { color: #0066cc; font-size: 2.5em; margin-bottom: 10px; }
+        h2 { color: #0066cc; margin-top: 30px; margin-bottom: 15px; border-left: 4px solid #0066cc; padding-left: 15px; }
+        h3 { color: #333; margin-top: 20px; margin-bottom: 12px; }
+        .toc {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .toc h3 { margin-top: 0; }
+        .toc ul { list-style: none; padding-left: 20px; }
+        .toc a { color: #0066cc; text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .section { margin-bottom: 40px; }
+        .diagram-container {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        svg { max-width: 100%; height: auto; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #0066cc; color: white; font-weight: bold; }
+        tr:hover { background: #f5f5f5; }
+        .api-endpoint {
+            background: #f5f5f5;
+            border-left: 4px solid #2196f3;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        .capability-item {
+            background: #e3f2fd;
+            border-left: 4px solid #0066cc;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .feature-card {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .feature-card strong { color: #0066cc; }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status-active { background: #c8e6c9; color: #2e7d32; }
+        .status-beta { background: #fff9c4; color: #f57f17; }
+        .integration-row {
+            display: grid;
+            grid-template-columns: 200px 1fr 150px;
+            gap: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            border-radius: 4px;
+            align-items: center;
+        }
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        .nav-links a {
+            color: #0066cc;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .nav-links a:hover { text-decoration: underline; }
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8em; }
+            .integration-row { grid-template-columns: 1fr; }
+            .nav-links { flex-direction: column; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚙️ Digital Card Service - Capabilities Analysis</h1>
+            <p style="color: #666; font-size: 0.95em;">Technical Capabilities & Features</p>
+        </header>
+
+        <nav class="toc">
+            <h3>📑 Navigation</h3>
+            <ul>
+                <li><a href="#core-capabilities">Core Capabilities</a></li>
+                <li><a href="#apis">REST API Endpoints</a></li>
+                <li><a href="#event-architecture">Event-Driven Architecture</a></li>
+                <li><a href="#integrations">External Service Integrations</a></li>
+                <li><a href="#data-handling">Data Handling & Encryption</a></li>
+                <li><a href="#architecture-patterns">Architecture Patterns</a></li>
+                <li><a href="#scalability-features">Scalability Features</a></li>
+            </ul>
+        </nav>
+
+        <div class="section">
+            <h2 id="core-capabilities">🎯 Core Capabilities</h2>
+            <p>The Digital Card Service provides the following primary capabilities:</p>
+
+            <div class="feature-list">
+                <div class="feature-card">
+                    <strong>📄 PDF Generation</strong>
+                    <p>Generates secure, tamper-evident PDF digital identity cards with citizen biometrics, demographics, and security features.</p>
+                </div>
+                <div class="feature-card">
+                    <strong>🔐 Encryption & Security</strong>
+                    <p>End-to-end encryption of card data using Keycloak-integrated cryptography with tamper detection.</p>
+                </div>
+                <div class="feature-card">
+                    <strong>📤 Secure Distribution</strong>
+                    <p>Uploads encrypted cards to DataShare service for secure storage and retrieval.</p>
+                </div>
+                <div class="feature-card">
+                    <strong>📊 Status Tracking</strong>
+                    <p>Real-time card generation status (pending, generated, failed) with download links and error details.</p>
+                </div>
+                <div class="feature-card">
+                    <strong>🔄 Event-Driven Automation</strong>
+                    <p>Automatically triggers card generation on credential issuance via WebSub pub/sub events.</p>
+                </div>
+                <div class="feature-card">
+                    <strong>🔗 Identity Integration</strong>
+                    <p>Pulls citizen data from ID Repository and integrates with multiple MOSIP services.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 id="apis">🔌 REST API Endpoints</h2>
+            <p>The service exposes a minimal REST API focused on card status and management:</p>
+
+            <div class="api-endpoint">
+                <strong>GET</strong> /v1/digitalcard/{rid}<br>
+                Retrieve digital card status and download URL for a registration ID
+            </div>
+
+            <div class="api-endpoint">
+                <strong>POST</strong> /v1/digitalcard/credential/callback/notifyStatus<br>
+                Webhook endpoint for credential status updates (invoked by Credential Service)
+            </div>
+
+            <div class="api-endpoint">
+                <strong>POST</strong> /v1/digitalcard/idCreateEventHandle/callback/notifyStatus<br>
+                Webhook endpoint for identity creation/update events (invoked by Registration Processor)
+            </div>
+
+            <div class="api-endpoint">
+                <strong>GET</strong> /v1/digitalcard/actuator/health<br>
+                Kubernetes health check endpoint
+            </div>
+
+            <div class="api-endpoint">
+                <strong>GET</strong> /v1/digitalcard/actuator/prometheus<br>
+                Metrics endpoint for Prometheus monitoring
+            </div>
+
+            <p style="margin-top: 20px;"><em>Note: All endpoints require JWT authentication via Keycloak, except webhook endpoints which use WebSub signature verification.</em></p>
+        </div>
+
+        <div class="section">
+            <h2 id="event-architecture">📡 Event-Driven Architecture</h2>
+            <p>Digital Card Service is fundamentally event-driven, listening to multiple event streams:</p>
+
+            <table>
+                <tr>
+                    <th>Event Topic</th>
+                    <th>Source</th>
+                    <th>Trigger</th>
+                    <th>Action</th>
+                </tr>
+                <tr>
+                    <td><strong>CREDENTIAL_STATUS_UPDATE</strong></td>
+                    <td>Credential Service</td>
+                    <td>Credential is issued/updated</td>
+                    <td>Fetches credential data, generates PDF card</td>
+                </tr>
+                <tr>
+                    <td><strong>IDENTITY_CREATED</strong></td>
+                    <td>Registration Processor</td>
+                    <td>Registration approved & processed</td>
+                    <td>Initiates credential request</td>
+                </tr>
+                <tr>
+                    <td><strong>IDENTITY_UPDATED</strong></td>
+                    <td>Registration Processor</td>
+                    <td>Identity data is updated</td>
+                    <td>Regenerates card with new data</td>
+                </tr>
+            </table>
+
+            <div class="capability-item">
+                <strong>🔄 Event Subscription Model:</strong><br>
+                The service maintains WebSub subscriptions to event hub. On startup, it subscribes to all required topics. If subscription fails, it automatically retries every 1000 seconds with exponential backoff (max 3 retries).
+            </div>
+
+            <div class="capability-item">
+                <strong>🔒 Event Security:</strong><br>
+                All webhook events are verified using HMAC-SHA256 signature validation with shared secret. Only legitimate events from known sources are processed.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 id="integrations">🔗 External Service Integrations</h2>
+            <p>Digital Card Service integrates with 6 major MOSIP microservices:</p>
+
+            <div class="integration-row">
+                <strong>🔐 KeyManager</strong>
+                <div>Provides encryption/decryption services. All card data encrypted before transmission.</div>
+                <span class="status-badge status-active">Active</span>
+            </div>
+
+            <div class="integration-row">
+                <strong>📦 DataShare</strong>
+                <div>Stores encrypted card PDFs. Service uploads encrypted cards and retrieves download URLs.</div>
+                <span class="status-badge status-active">Active</span>
+            </div>
+
+            <div class="integration-row">
+                <strong>📋 ID Repository</strong>
+                <div>Fetches citizen identity data (biometrics, documents) needed for card generation.</div>
+                <span class="status-badge status-active">Active</span>
+            </div>
+
+            <div class="integration-row">
+                <strong>📰 Template Manager</strong>
+                <div>Retrieves card layout templates in Velocity format for rendering.</div>
+                <span class="status-badge status-active">Active</span>
+            </div>
+
+            <div class="integration-row">
+                <strong>📄 PDF Generator</strong>
+                <div>Generates signed PDFs from templates with watermarks and security features.</div>
+                <span class="status-badge status-active">Active</span>
+            </div>
+
+            <div class="integration-row">
+                <strong>✅ Credential Service</strong>
+                <div>Monitors credential issuance. Receives credential events and status updates.</div>
+                <span class="status-badge status-active">Active</span>
+            </div>
+
+            <h3 style="margin-top: 25px;">Integration Resilience</h3>
+            <ul style="margin-left: 20px;">
+                <li><strong>Retry Logic:</strong> Failed external calls retry up to 3 times with fixed delay</li>
+                <li><strong>Timeout Handling:</strong> Service timeouts logged and reported; no circuit breaker currently</li>
+                <li><strong>Error Recovery:</strong> Failed cards tracked; can be retried via database updates</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2 id="data-handling">🔐 Data Handling & Encryption</h2>
+
+            <h3>Data Flow</h3>
+            <div class="diagram-container">
+                <svg viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg" width="100%" height="auto">
+                    <text x="400" y="20" font-size="14" font-weight="bold" text-anchor="middle">Encrypted Digital Card Data Flow</text>
+
+                    <rect x="20" y="50" width="120" height="60" fill="#e3f2fd" stroke="#0066cc" stroke-width="2" rx="5"/>
+                    <text x="80" y="75" font-size="11" font-weight="bold" text-anchor="middle">1. Fetch Data</text>
+                    <text x="80" y="90" font-size="9" text-anchor="middle">from ID-Repo</text>
+
+                    <rect x="190" y="50" width="120" height="60" fill="#fff3e0" stroke="#ff9800" stroke-width="2" rx="5"/>
+                    <text x="250" y="75" font-size="11" font-weight="bold" text-anchor="middle">2. Generate</text>
+                    <text x="250" y="90" font-size="9" text-anchor="middle">PDF Card</text>
+
+                    <rect x="360" y="50" width="120" height="60" fill="#f3e5f5" stroke="#9c27b0" stroke-width="2" rx="5"/>
+                    <text x="420" y="75" font-size="11" font-weight="bold" text-anchor="middle">3. Encrypt</text>
+                    <text x="420" y="90" font-size="9" text-anchor="middle">with KeyMgr</text>
+
+                    <rect x="530" y="50" width="120" height="60" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" rx="5"/>
+                    <text x="590" y="75" font-size="11" font-weight="bold" text-anchor="middle">4. Upload to</text>
+                    <text x="590" y="90" font-size="9" text-anchor="middle">DataShare</text>
+
+                    <rect x="700" y="50" width="80" height="60" fill="#fce4ec" stroke="#e91e63" stroke-width="2" rx="5"/>
+                    <text x="740" y="75" font-size="11" font-weight="bold" text-anchor="middle">5. Share</text>
+                    <text x="740" y="90" font-size="9" text-anchor="middle">URL</text>
+
+                    <!-- Arrows -->
+                    <path d="M 140 80 L 190 80" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                    <path d="M 310 80 L 360 80" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                    <path d="M 480 80 L 530 80" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                    <path d="M 650 80 L 700 80" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+
+                    <text x="400" y="145" font-size="10" text-anchor="middle" fill="#666">Card remains encrypted at rest in DataShare; only URL stored in database</text>
+                    <text x="400" y="160" font-size="10" text-anchor="middle" fill="#666">Citizens download via secure link; can decrypt offline with provided credentials</text>
+                </svg>
+            </div>
+
+            <h3 style="margin-top: 20px;">Security Features</h3>
+            <ul style="margin-left: 20px;">
+                <li><strong>End-to-End Encryption:</strong> Cards encrypted by KeyManager before DataShare upload</li>
+                <li><strong>Signed PDFs:</strong> Card PDFs digitally signed with government certificate</li>
+                <li><strong>Tamper Detection:</strong> Watermarks and security features prevent modification</li>
+                <li><strong>Audit Trail:</strong> All card generation events logged with timestamp, user, status</li>
+                <li><strong>PII Protection:</strong> UIN stored as salted hash; no plaintext personal data in logs</li>
+                <li><strong>Optional Password:</strong> Card PDFs can be password-protected (configurable)</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2 id="architecture-patterns">🏗️ Architecture Patterns</h2>
+
+            <table>
+                <tr>
+                    <th>Pattern</th>
+                    <th>Implementation</th>
+                    <th>Benefit</th>
+                </tr>
+                <tr>
+                    <td><strong>Layered Architecture</strong></td>
+                    <td>Controller → Service → Repository → DB</td>
+                    <td>Clear separation of concerns; testable</td>
+                </tr>
+                <tr>
+                    <td><strong>Event-Driven</strong></td>
+                    <td>WebSub pub/sub for async processing</td>
+                    <td>Decoupled from other services; scalable</td>
+                </tr>
+                <tr>
+                    <td><strong>Service Interface</strong></td>
+                    <td>Interface + Implementation pattern</td>
+                    <td>Loose coupling; easy to mock in tests</td>
+                </tr>
+                <tr>
+                    <td><strong>Repository Pattern</strong></td>
+                    <td>JPA repositories for data access</td>
+                    <td>Abstracted DB access; database-agnostic</td>
+                </tr>
+                <tr>
+                    <td><strong>Centralized Exception Handling</strong></td>
+                    <td>@RestControllerAdvice for global error handling</td>
+                    <td>Consistent error responses; better UX</td>
+                </tr>
+                <tr>
+                    <td><strong>Utility Services</strong></td>
+                    <td>Separate utility classes for encryption, REST, templates</td>
+                    <td>Reusable; single responsibility</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2 id="scalability-features">📈 Scalability Features</h2>
+
+            <div class="capability-item">
+                <strong>✅ Stateless Design:</strong> Service instances are stateless; all state in database or external services. Enables horizontal scaling with load balancing.
+            </div>
+
+            <div class="capability-item">
+                <strong>✅ Event-Based Processing:</strong> Decoupled from request/response. Multiple instances can process events independently without coordination.
+            </div>
+
+            <div class="capability-item">
+                <strong>✅ Database Transactions:</strong> JPA transactions ensure atomic updates; no data corruption on concurrent access.
+            </div>
+
+            <div class="capability-item">
+                <strong>⚠️ Limited Thread Pools:</strong> Fixed thread pools (size 2-5) may bottleneck under high load. Recommendation: Increase pool sizes based on expected throughput.
+            </div>
+
+            <div class="capability-item">
+                <strong>⚠️ No Caching:</strong> Hibernate L2 cache disabled. Every request hits database. Recommendation: Enable L2 cache for template and identity lookups.
+            </div>
+
+            <div class="capability-item">
+                <strong>⚠️ Synchronous PDF Generation:</strong> PDF generation blocks thread. High-volume scenarios may need async processing with task queue.
+            </div>
+
+            <h3 style="margin-top: 20px;">Current Capacity Estimates</h3>
+            <ul style="margin-left: 20px;">
+                <li><strong>Concurrent Requests:</strong> ~50-100 (with 5-thread pool)</li>
+                <li><strong>Cards/Minute:</strong> ~30-50 (single instance)</li>
+                <li><strong>Database Connections:</strong> Limited by Hibernate pool (no explicit config)</li>
+                <li><strong>Horizontal Scale:</strong> Yes, instances are stateless</li>
+                <li><strong>Recommended:</strong> Deploy 5-10 instances for production; use load balancer</li>
+            </ul>
+        </div>
+
+        <nav class="nav-links">
+            <a href="../business_context/">← Previous: Business Context</a>
+            <a href="../code_issues/">Next: Code Quality & Issues →</a>
+        </nav>
+    </div>
+</body>
+</html>

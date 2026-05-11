@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Card Service - Deployment Architecture Analysis</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; background: white; }
+        header { border-bottom: 4px solid #2196f3; margin-bottom: 30px; padding-bottom: 20px; }
+        h1 { color: #2196f3; font-size: 2.5em; margin-bottom: 10px; }
+        h2 { color: #2196f3; margin-top: 30px; margin-bottom: 15px; border-left: 4px solid #2196f3; padding-left: 15px; }
+        .section { margin-bottom: 40px; }
+        .strength { border-left: 5px solid #388e3c; padding: 15px; margin: 15px 0; border-radius: 4px; background: #f1f8e9; }
+        .weakness { border-left: 5px solid #d32f2f; padding: 15px; margin: 15px 0; border-radius: 4px; background: #ffebee; }
+        .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 20px 0; }
+        .metric-card { background: #f9f9f9; border: 1px solid #ddd; padding: 15px; border-radius: 8px; }
+        .metric-value { font-size: 1.8em; font-weight: bold; color: #2196f3; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #2196f3; color: white; }
+        .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; }
+        .nav-links a { color: #2196f3; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Digital Card Service - Deployment Architecture</h1>
+            <p style="color: #666; font-size: 0.95em;">Containerization, Orchestration & CI/CD Pipeline</p>
+        </header>
+
+        <div class="section">
+            <h2>📦 Containerization</h2>
+
+            <div class="strength">
+                <strong>✅ Modern Java Base Image</strong><br>
+                Uses OpenJDK 21 JRE (mosipid/openjdk-21-jre:21.0.4). Latest Java version with modern features.
+            </div>
+
+            <div class="weakness">
+                <strong>⚠️ Single-Stage Dockerfile</strong><br>
+                No multi-stage build. All dependencies included in single layer; larger image size (~800MB+).
+            </div>
+
+            <div class="weakness">
+                <strong>⚠️ Dynamic Artifact Downloads</strong><br>
+                Downloads PDF generator and auth adapter at runtime from Artifactory. Network dependency; potential supply chain risk.
+            </div>
+
+            <h3 style="margin-top: 20px;">JVM Configuration</h3>
+            <ul style="margin-left: 20px;">
+                <li><strong>GC:</strong> ZGC with generational mode (modern, low-latency)</li>
+                <li><strong>Heap:</strong> Min 1.25GB, Max 2.25GB (aggressive sizing)</li>
+                <li><strong>Diagnostics:</strong> HeapDumpOnOutOfMemoryError enabled</li>
+                <li><strong>String Dedup:</strong> Enabled (reduces memory)</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>☸️ Kubernetes & Helm</h2>
+
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <div class="metric-value">7.5/10</div>
+                    <div style="color: #666; font-size: 0.9em;">Deployment Maturity</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">1</div>
+                    <div style="color: #666; font-size: 0.9em;">Default Replicas</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">6</div>
+                    <div style="color: #666; font-size: 0.9em;">Health Check Failures</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">80/9092</div>
+                    <div style="color: #666; font-size: 0.9em;">Service/Pod Port</div>
+                </div>
+            </div>
+
+            <div class="strength">
+                <strong>✅ Helm Chart v1.3.0</strong><br>
+                Proper Helm packaging; values override support; easy environment-specific deployment.
+            </div>
+
+            <div class="strength">
+                <strong>✅ Istio Integration</strong><br>
+                VirtualService for routing; mesh observability; traffic management ready.
+            </div>
+
+            <div class="strength">
+                <strong>✅ RBAC Configured</strong><br>
+                ServiceAccount and ClusterRoleBinding defined; proper authorization.
+            </div>
+
+            <div class="weakness">
+                <strong>⚠️ Single Replica (replicaCount: 1)</strong><br>
+                No high availability; single point of failure. Recommendation: Deploy 3-5 replicas in production.
+            </div>
+
+            <div class="weakness">
+                <strong>⚠️ No Horizontal Pod Autoscaler</strong><br>
+                Manual scaling only; can't respond to load spikes automatically.
+            </div>
+
+            <div class="weakness">
+                <strong>⚠️ No NetworkPolicy</strong><br>
+                Pod-to-pod communication unrestricted. Recommendation: Implement deny-all + allow rules.
+            </div>
+
+            <div class="weakness">
+                <strong>⚠️ Security Context Disabled</strong><br>
+                Container runs as root. Recommendation: Add securityContext with runAsNonRoot, fsGroup.
+            </div>
+
+            <h3 style="margin-top: 20px;">Resource Allocation</h3>
+            <table>
+                <tr>
+                    <th>Resource</th>
+                    <th>Request</th>
+                    <th>Limit</th>
+                    <th>Recommendation</th>
+                </tr>
+                <tr>
+                    <td><strong>CPU</strong></td>
+                    <td>500m</td>
+                    <td>1000m</td>
+                    <td>Increase to 1000m request for production</td>
+                </tr>
+                <tr>
+                    <td><strong>Memory</strong></td>
+                    <td>1800Mi</td>
+                    <td>3000Mi</td>
+                    <td>Good; ensures JVM heap limits</td>
+                </tr>
+            </table>
+
+            <h3 style="margin-top: 20px;">Health Probes</h3>
+            <ul style="margin-left: 20px;">
+                <li><strong>StartupProbe:</strong> 30s interval, 10 failures (aggressive startup detection)</li>
+                <li><strong>LivenessProbe:</strong> 120s initial, 10s interval (validates running state)</li>
+                <li><strong>ReadinessProbe:</strong> 60s initial, 10s interval (ready to accept traffic)</li>
+                <li><strong>Endpoint:</strong> /v1/digitalcard/actuator/health</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🔄 CI/CD Pipeline</h2>
+
+            <h3>GitHub Actions Workflow: push-trigger.yml</h3>
+            <table>
+                <tr>
+                    <th>Stage</th>
+                    <th>Tool</th>
+                    <th>Description</th>
+                    <th>Duration</th>
+                </tr>
+                <tr>
+                    <td><strong>1. Build</strong></td>
+                    <td>Maven</td>
+                    <td>Compile, unit tests, package JAR</td>
+                    <td>5-10 min</td>
+                </tr>
+                <tr>
+                    <td><strong>2. Test</strong></td>
+                    <td>JUnit, Surefire</td>
+                    <td>Run test suite; generate coverage</td>
+                    <td>3-5 min</td>
+                </tr>
+                <tr>
+                    <td><strong>3. Publish</strong></td>
+                    <td>Nexus (OSSRH)</td>
+                    <td>Publish JAR to Maven Central</td>
+                    <td>2-3 min</td>
+                </tr>
+                <tr>
+                    <td><strong>4. Docker Build</strong></td>
+                    <td>Docker CLI</td>
+                    <td>Build image; push to registry</td>
+                    <td>5-10 min</td>
+                </tr>
+                <tr>
+                    <td><strong>5. Code Quality</strong></td>
+                    <td>SonarQube</td>
+                    <td>Static analysis; coverage reporting</td>
+                    <td>2-3 min</td>
+                </tr>
+            </table>
+
+            <p style="margin-top: 20px;"><strong>Total Pipeline Duration:</strong> ~20-35 minutes</p>
+
+            <div class="strength">
+                <strong>✅ Multi-Stage Pipeline</strong><br>
+                Build → Test → Publish → Docker → Scan. Logical progression with clear gates.
+            </div>
+
+            <div class="strength">
+                <strong>✅ Automated Image Build</strong><br>
+                Docker images automatically built and pushed on release/tag events.
+            </div>
+
+            <div class="strength">
+                <strong>✅ SonarQube Integration</strong><br>
+                Code quality metrics collected; trend analysis.
+            </div>
+
+            <div class="weakness">
+                <strong>⚠️ No Image Scanning</strong><br>
+                Docker images not scanned for vulnerabilities. Recommendation: Add Trivy or Snyk scanning.
+            </div>
+
+            <div class="weakness">
+                <strong>⚠️ No Helm Chart Validation</strong><br>
+                Chart linted but not tested. Recommendation: Add Helm unittest or Kube-score validation.
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>💾 Database</h2>
+
+            <div class="strength">
+                <strong>✅ PostgreSQL 14+</strong><br>
+                Modern, reliable database; proper UTF-8 encoding; optimized driver.
+            </div>
+
+            <div class="strength">
+                <strong>✅ Schema Versioning</strong><br>
+                Database migration scripts tracked; upgrade path defined.
+            </div>
+
+            <div class="weakness">
+                <strong>⚠️ Single Table Design</strong><br>
+                All transaction data in digitalcard_transaction table. May hit performance limits with millions of records.
+            </div>
+
+            <div class="weakness">
+                <strong>⚠️ No Partitioning</strong><br>
+                Recommendation: Partition by date or region if volume grows.
+            </div>
+
+            <h3 style="margin-top: 20px;">Database Configuration</h3>
+            <ul style="margin-left: 20px;">
+                <li><strong>Owner:</strong> postgres</li>
+                <li><strong>Template:</strong> template0 (clean state)</li>
+                <li><strong>Encoding:</strong> UTF8</li>
+                <li><strong>Connections:</strong> No explicit pooling config (recommend HikariCP with maxPoolSize=20)</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🛠️ Production Readiness Checklist</h2>
+
+            <table>
+                <tr>
+                    <th>Item</th>
+                    <th>Status</th>
+                    <th>Notes</th>
+                </tr>
+                <tr>
+                    <td>Helm Chart</td>
+                    <td>✅ Done</td>
+                    <td>v1.3.0 available</td>
+                </tr>
+                <tr>
+                    <td>Docker Image</td>
+                    <td>✅ Done</td>
+                    <td>Multi-arch support available</td>
+                </tr>
+                <tr>
+                    <td>CI/CD Pipeline</td>
+                    <td>✅ Done</td>
+                    <td>5-stage pipeline</td>
+                </tr>
+                <tr>
+                    <td>Security Context</td>
+                    <td>❌ Missing</td>
+                    <td>Recommend adding runAsNonRoot</td>
+                </tr>
+                <tr>
+                    <td>HPA (Auto-scaling)</td>
+                    <td>❌ Missing</td>
+                    <td>Recommend 3-5 replicas minimum</td>
+                </tr>
+                <tr>
+                    <td>Network Policy</td>
+                    <td>❌ Missing</td>
+                    <td>Recommend deny-all + allow rules</td>
+                </tr>
+                <tr>
+                    <td>Monitoring</td>
+                    <td>⚠️ Partial</td>
+                    <td>Prometheus metrics exposed; Grafana dashboards needed</td>
+                </tr>
+                <tr>
+                    <td>Logging</td>
+                    <td>✅ Good</td>
+                    <td>Structured logs via SLF4J/Logback</td>
+                </tr>
+                <tr>
+                    <td>Tracing</td>
+                    <td>❌ Missing</td>
+                    <td>Recommend Jaeger/OpenTelemetry</td>
+                </tr>
+            </table>
+
+            <p style="margin-top: 20px;"><strong>Overall Readiness:</strong> 7.5/10 - Good infrastructure foundation; needs hardening for high-scale production.</p>
+        </div>
+
+        <nav class="nav-links">
+            <a href="../performance/">← Previous: Performance</a>
+            <a href="../nfrs/">Next: NFRs →</a>
+        </nav>
+    </div>
+</body>
+</html>

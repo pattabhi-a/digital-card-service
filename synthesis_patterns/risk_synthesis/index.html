@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Card Service - Risk Synthesis</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; background: white; }
+        header { border-bottom: 4px solid #c62828; margin-bottom: 30px; padding-bottom: 20px; }
+        h1 { color: #c62828; font-size: 2.5em; margin-bottom: 10px; }
+        h2 { color: #c62828; margin-top: 30px; margin-bottom: 15px; border-left: 4px solid #c62828; padding-left: 15px; }
+        h3 { color: #b71c1c; margin-top: 20px; margin-bottom: 10px; }
+        .section { margin-bottom: 40px; }
+        .critical { border-left: 5px solid #d32f2f; padding: 15px; margin: 15px 0; border-radius: 4px; background: #ffebee; }
+        .high { border-left: 5px solid #f57c00; padding: 15px; margin: 15px 0; border-radius: 4px; background: #fff3e0; }
+        .medium { border-left: 5px solid #fbc02d; padding: 15px; margin: 15px 0; border-radius: 4px; background: #fffde7; }
+        .mitigation { border-left: 5px solid #388e3c; padding: 15px; margin: 10px 0; border-radius: 4px; background: #f1f8e9; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #c62828; color: white; }
+        .risk-matrix { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 20px 0; }
+        .risk-card { padding: 15px; border-radius: 8px; text-align: center; }
+        .critical-count { background: #ffebee; color: #c62828; font-size: 2em; font-weight: bold; }
+        .high-count { background: #fff3e0; color: #e65100; font-size: 2em; font-weight: bold; }
+        .medium-count { background: #fffde7; color: #f57f17; font-size: 2em; font-weight: bold; }
+        .link-box { background: #f0f4ff; border-left: 4px solid #2196f3; padding: 15px; margin: 15px 0; border-radius: 4px; }
+        .link-box a { color: #2196f3; text-decoration: none; font-weight: bold; }
+        .nav-links { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; }
+        .nav-links a { color: #c62828; text-decoration: none; font-weight: bold; }
+        ul { margin-left: 20px; }
+        li { margin: 8px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚠️ Risk Synthesis</h1>
+            <p style="color: #666; font-size: 0.95em;">Consolidated Security, Performance & Operational Risks</p>
+        </header>
+
+        <div class="section">
+            <h2>Risk Overview</h2>
+            <p>This document consolidates security vulnerabilities, performance bottlenecks, and operational risks identified across the Digital Card Service architecture. Risks are categorized by severity and impact, with mitigation strategies and timelines.</p>
+
+            <div class="risk-matrix">
+                <div class="risk-card critical-count">
+                    5<br><span style="font-size: 0.5em; font-weight: normal;">Critical</span>
+                </div>
+                <div class="risk-card high-count">
+                    5<br><span style="font-size: 0.5em; font-weight: normal;">High</span>
+                </div>
+                <div class="risk-card medium-count">
+                    4<br><span style="font-size: 0.5em; font-weight: normal;">Medium</span>
+                </div>
+            </div>
+
+            <p style="text-align: center; margin-top: 20px;"><strong>Total Risk Score: 8.2/10 (High Risk)</strong></p>
+        </div>
+
+        <div class="section">
+            <h2>🔴 Critical Risks (P0 - Fix Immediately)</h2>
+
+            <div class="critical">
+                <h3>1. Credentials in Plain Text (Database Password)</h3>
+                <p><strong>Severity:</strong> CRITICAL | <strong>Likelihood:</strong> High | <strong>Impact:</strong> Critical</p>
+                <p style="margin-top: 10px;"><strong>Description:</strong> Database password `4YbeUrM2bD` visible in application.properties files (from <a href="../../detailed_findings/security/">Security Analysis</a>)</p>
+                <p><strong>Business Impact:</strong></p>
+                <ul>
+                    <li>Unauthorized database access (anyone with code access gets DB credentials)</li>
+                    <li>Data breach: All citizen identity data exposed</li>
+                    <li>Compliance violation: Fines up to 10% revenue</li>
+                    <li>Liability: Breach notification costs + reputational damage</li>
+                </ul>
+                <div class="mitigation">
+                    <strong>Mitigation:</strong>
+                    <ul>
+                        <li>Move credentials to environment variables (immediate, same day)</li>
+                        <li>Rotate database password immediately</li>
+                        <li>Use HashiCorp Vault or AWS Secrets Manager for long-term</li>
+                        <li>Audit git history for exposed credentials</li>
+                    </ul>
+                    <strong>Timeline:</strong> 4 hours | <strong>Cost:</strong> $5K
+                </div>
+            </div>
+
+            <div class="critical">
+                <h3>2. Missing Input Validation</h3>
+                <p><strong>Severity:</strong> CRITICAL | <strong>Likelihood:</strong> High | <strong>Impact:</strong> High</p>
+                <p style="margin-top: 10px;"><strong>Description:</strong> Controller endpoints accept parameters without @Valid, null checks, or type validation (from <a href="../../detailed_findings/security/">Security Analysis</a>)</p>
+                <p><strong>Business Impact:</strong></p>
+                <ul>
+                    <li>Injection attacks: SQL injection, expression language injection possible</li>
+                    <li>NullPointerException crashes: Service unavailability</li>
+                    <li>Type coercion attacks: Unexpected behavior with malformed input</li>
+                </ul>
+                <div class="mitigation">
+                    <strong>Mitigation:</strong>
+                    <ul>
+                        <li>Add @Valid on all DTOs</li>
+                        <li>Implement JSR-303 constraints (@NotNull, @Size, @Pattern, etc.)</li>
+                        <li>Add null checks in service layer</li>
+                    </ul>
+                    <strong>Timeline:</strong> 3-4 days | <strong>Cost:</strong> $3K
+                </div>
+            </div>
+
+            <div class="critical">
+                <h3>3. No Rate Limiting</h3>
+                <p><strong>Severity:</strong> CRITICAL | <strong>Likelihood:</strong> Medium | <strong>Impact:</strong> High</p>
+                <p style="margin-top: 10px;"><strong>Description:</strong> No protection against API abuse or distributed denial-of-service attacks (from <a href="../../detailed_findings/security/">Security Analysis</a>)</p>
+                <p><strong>Business Impact:</strong></p>
+                <ul>
+                    <li>Denial of Service: Attacker can exhaust service with high-volume requests</li>
+                    <li>Credential brute-force: Attacker can attempt to guess/enumerate credentials</li>
+                    <li>Service disruption: Legitimate users get degraded service</li>
+                </ul>
+                <div class="mitigation">
+                    <strong>Mitigation:</strong>
+                    <ul>
+                        <li>Implement Spring Cloud Gateway rate limiting (requests/user/minute)</li>
+                        <li>Add @RateLimiter on critical endpoints</li>
+                        <li>Use Redis for distributed rate limiting (across instances)</li>
+                    </ul>
+                    <strong>Timeline:</strong> 3-5 days | <strong>Cost:</strong> $2K
+                </div>
+            </div>
+
+            <div class="critical">
+                <h3>4. Sensitive Data in Logs</h3>
+                <p><strong>Severity:</strong> CRITICAL | <strong>Likelihood:</strong> High | <strong>Impact:</strong> High</p>
+                <p style="margin-top: 10px;"><strong>Description:</strong> Stack traces include credentials; database credentials logged as strings (from <a href="../../detailed_findings/security/">Security Analysis</a>)</p>
+                <p><strong>Business Impact:</strong></p>
+                <ul>
+                    <li>Credential exposure via log aggregation tools (ELK, CloudWatch, etc.)</li>
+                    <li>Compliance violation: PII protection regulations</li>
+                    <li>Supply chain risk: 3rd-party log analysis tools may have access</li>
+                </ul>
+                <div class="mitigation">
+                    <strong>Mitigation:</strong>
+                    <ul>
+                        <li>Implement log masking: Replace sensitive patterns (passwords, API keys)</li>
+                        <li>Use Logback filters to exclude sensitive fields</li>
+                        <li>Don't log full stack traces; use structured logging with sanitization</li>
+                    </ul>
+                    <strong>Timeline:</strong> 2-3 days | <strong>Cost:</strong> $2K
+                </div>
+            </div>
+
+            <div class="critical">
+                <h3>5. All Errors Return HTTP 200</h3>
+                <p><strong>Severity:</strong> CRITICAL | <strong>Likelihood:</strong> High | <strong>Impact:</strong> Medium</p>
+                <p style="margin-top: 10px;"><strong>Description:</strong> ApiExceptionHandler returns HTTP 200 even for 403 Forbidden, 500 Internal Server Error (from <a href="../../detailed_findings/security/">Security Analysis</a>)</p>
+                <p><strong>Business Impact:</strong></p>
+                <ul>
+                    <li>Violates HTTP standards; breaks client error handling</li>
+                    <li>Makes debugging harder: Status codes are reliable indicators</li>
+                    <li>Masks real errors: Clients can't distinguish success from failure</li>
+                    <li>Security: Attackers can't detect which requests failed</li>
+                </ul>
+                <div class="mitigation">
+                    <strong>Mitigation:</strong>
+                    <ul>
+                        <li>Return correct HTTP status codes: 400 (Bad Request), 403 (Forbidden), 500 (Server Error)</li>
+                        <li>Update ApiExceptionHandler to map exceptions to proper status codes</li>
+                    </ul>
+                    <strong>Timeline:</strong> 1 day | <strong>Cost:</strong> $1K
+                </div>
+            </div>
+
+            <p style="text-align: center; margin-top: 30px; padding: 15px; background: #ffebee; border-radius: 4px;">
+                <strong>Total P0 (Critical) Effort:</strong> 10 days | <strong>Estimated Cost:</strong> $13K<br>
+                <strong>Business Impact if Not Fixed:</strong> Regulatory breach, data loss, service disruption
+            </p>
+        </div>
+
+        <div class="section">
+            <h2>🟠 High Risks (P1 - Fix within 2 weeks)</h2>
+
+            <div class="high">
+                <h3>1. No Request Timeouts (External Service Calls)</h3>
+                <p><strong>Severity:</strong> HIGH | <strong>Likelihood:</strong> Medium | <strong>Impact:</strong> High</p>
+                <p style="margin-top: 10px;"><strong>Description:</strong> RestTemplate calls to external services (KeyManager, DataShare, Credential Service) have no timeout (from <a href="../../detailed_findings/security/">Security Analysis</a>)</p>
+                <p><strong>Business Impact:</strong></p>
+                <ul>
+                    <li>Thread exhaustion: Requests hang indefinitely; thread pool gets exhausted</li>
+                    <li>Cascading failure: If external service is slow, entire card generation fails</li>
+                    <li>Resource leak: Threads never released; memory usage grows unbounded</li>
+                </ul>
+                <div class="mitigation">
+                    <strong>Mitigation:</strong>
+                    <ul>
+                        <li>Set connectTimeout: 5 seconds</li>
+                        <li>Set readTimeout: 10 seconds</li>
+                        <li>Configure RestTemplate with HttpComponentsClientHttpRequestFactory</li>
+                    </ul>
+                    <strong>Timeline:</strong> 1 day | <strong>Cost:</strong> $1K
+                </div>
+            </div>
+
+            <div class="high">
+                <h3>2. No Circuit Breaker (External Dependencies)</h3>
+                <p><strong>Severity:</strong> HIGH | <strong>Likelihood:</strong> Medium | <strong>Impact:</strong> High</p>
+                <p style="margin-top: 10px;"><strong>Description:</strong> If KeyManager, DataShare, or Credential Service are unavailable, service will fail completely (from <a href="../../detailed_findings/security/">Security Analysis</a>)</p>
+                <p><strong>Business Impact:</strong></p>
+                <ul>
+                    <li>No graceful degradation: All credential issuance fails</li>
+                    <li>Cascading outage: One external service down = entire platform down</li>
+                    <li>Slow recovery: No automatic retry or fallback</li>
+                </ul>
+                <div class="mitigation">
+                    <strong>Mitigation:</strong>
+                    <ul>
+                        <li>Implement Resilience4J circuit breaker</li>
+                        <li>Implement retry logic (3 attempts, exponential backoff)</li>
+                        <li>Implement fallback strategy: Queue credential for async retry</li>
+                    </ul>
+                    <strong>Timeline:</strong> 3-4 days | <strong>Cost:</strong> $2K
+                </div>
+            </div>
+
+            <div class="high">
+                <h3>3. Caching Disabled (Performance Bottleneck)</h3>
+                <p><strong>Severity:</strong> HIGH | <strong>Likelihood:</strong> High | <strong>Impact:</strong> High</p>
+                <p style="margin-top: 10px;"><strong>Description:</strong> Hibernate L2 cache disabled; every request hits database (from <a href="../../detailed_findings/performance/">Performance Analysis</a>)</p>
+                <p><strong>Business Impact:</strong></p>
+                <ul>
+                    <li>Database load: 50-100 queries per operation (one per request)</li>
+                    <li>Latency: 50% of response time from database round trips</li>
+                    <li>Scalability ceiling: Database becomes bottleneck at ~50 concurrent requests</li>
+                </ul>
+                <div class="mitigation">
+                    <strong>Mitigation:</strong>
+                    <ul>
+                        <li>Phase 1: Enable Hibernate L2 cache with EhCache (immediate)</li>
+                        <li>Phase 2: Switch to Redis for distributed cache (Month 1)</li>
+                        <li>Expected improvement: 50% latency reduction</li>
+                    </ul>
+                    <strong>Timeline:</strong> 2-3 days (Phase 1) | <strong>Cost:</strong> $2K
+                </div>
+            </div>
+
+            <div class="high">
+                <h3>4. Single Replica Deployment (HA Risk)</h3>
+                <p><strong>Severity:</strong> HIGH | <strong>Likelihood:</strong> High | <strong>Impact:</strong> High</p>
+                <p style="margin-top: 10px;"><strong>Description:</strong> Single instance with no redundancy; no horizontal auto-scaling (from <a href="../../detailed_findings/deployment/">Deployment Analysis</a>)</p>
+                <p><strong>Business Impact:</strong></p>
+                <ul>
+                    <li>Single point of failure: Pod crash = complete service outage</li>
+                    <li>Maintenance downtime: Rolling updates cause outages</li>
+                    <li>Cannot handle load spikes: Manual scaling too slow</li>
+                    <li>SLA failure: Can't meet 99.9% uptime target</li>
+                </ul>
+                <div class="mitigation">
+                    <strong>Mitigation:</strong>
+                    <ul>
+                        <li>Deploy minimum 3 replicas</li>
+                        <li>Enable HPA: Scale from 3-10 replicas based on CPU load (70% target)</li>
+                        <li>Update PDB (Pod Disruption Budget) to maintain ≥1 replica during maintenance</li>
+                    </ul>
+                    <strong>Timeline:</strong> 2-3 days | <strong>Cost:</strong> $3K
+                </div>
+            </div>
+
+            <div class="high">
+                <h3>5. Small Thread Pools (Concurrency Bottleneck)</h3>
+                <p><strong>Severity:</strong> HIGH | <strong>Likelihood:</strong> High | <strong>Impact:</strong> High</p>
+                <p style="margin-top: 10px;"><strong>Description:</strong> Thread pools limited to 2-5 threads; request queueing under load (from <a href="../../detailed_findings/performance/">Performance Analysis</a>)</p>
+                <p><strong>Business Impact:</strong></p>
+                <ul>
+                    <li>Request queue overload: >50 concurrent requests causes exponential latency increase</li>
+                    <li>Throughput ceiling: Can't exceed ~50 concurrent requests</li>
+                    <li>Scalability bottleneck: Blocks 20x growth target</li>
+                </ul>
+                <div class="mitigation">
+                    <strong>Mitigation:</strong>
+                    <ul>
+                        <li>Increase scheduling thread pool: 2 → 20 threads</li>
+                        <li>Increase application thread pool: 5 → 50 threads</li>
+                        <li>Monitor thread utilization; adjust based on peak load</li>
+                    </ul>
+                    <strong>Timeline:</strong> 1 day | <strong>Cost:</strong> $500
+                </div>
+            </div>
+
+            <p style="text-align: center; margin-top: 30px; padding: 15px; background: #fff3e0; border-radius: 4px;">
+                <strong>Total P1 (High) Effort:</strong> 12 days | <strong>Estimated Cost:</strong> $8.5K<br>
+                <strong>Business Impact if Not Fixed:</strong> Service outages, poor performance, limited scalability
+            </p>
+        </div>
+
+        <div class="section">
+            <h2>🟡 Medium Risks (P2 - Fix within 1 month)</h2>
+
+            <table>
+                <tr>
+                    <th>Risk</th>
+                    <th>Description</th>
+                    <th>Impact</th>
+                    <th>Mitigation</th>
+                </tr>
+                <tr>
+                    <td><strong>Security Context Disabled</strong></td>
+                    <td>Container runs as root (privilege escalation risk)</td>
+                    <td>Medium</td>
+                    <td>Add runAsNonRoot, fsGroup, readOnlyRootFilesystem</td>
+                </tr>
+                <tr>
+                    <td><strong>No NetworkPolicy</strong></td>
+                    <td>Pod-to-pod communication unrestricted</td>
+                    <td>Medium</td>
+                    <td>Implement deny-all + allow specific egress rules</td>
+                </tr>
+                <tr>
+                    <td><strong>No Image Scanning</strong></td>
+                    <td>Docker images not scanned for vulnerabilities</td>
+                    <td>Medium</td>
+                    <td>Add Trivy scanning to CI/CD pipeline</td>
+                </tr>
+                <tr>
+                    <td><strong>No Distributed Tracing</strong></td>
+                    <td>No request correlation IDs; hard to trace across services</td>
+                    <td>Medium</td>
+                    <td>Implement Spring Cloud Sleuth + Jaeger</td>
+                </tr>
+            </table>
+
+            <p style="text-align: center; margin-top: 20px; padding: 15px; background: #fffde7; border-radius: 4px;">
+                <strong>Total P2 (Medium) Effort:</strong> 8 days | <strong>Estimated Cost:</strong> $5K
+            </p>
+        </div>
+
+        <div class="section">
+            <h2>Risk Mitigation Timeline</h2>
+            <table>
+                <tr>
+                    <th>Phase</th>
+                    <th>Timeline</th>
+                    <th>Effort</th>
+                    <th>Cost</th>
+                    <th>Key Deliverables</th>
+                </tr>
+                <tr>
+                    <td><strong>P0 - Critical</strong></td>
+                    <td>Week 1</td>
+                    <td>10 days</td>
+                    <td>$13K</td>
+                    <td>Credentials in vault, input validation, rate limiting, log masking, HTTP codes</td>
+                </tr>
+                <tr>
+                    <td><strong>P1 - High</strong></td>
+                    <td>Week 2-3</td>
+                    <td>12 days</td>
+                    <td>$8.5K</td>
+                    <td>Timeouts, circuit breakers, caching, multi-replica HA, thread pools</td>
+                </tr>
+                <tr>
+                    <td><strong>P2 - Medium</strong></td>
+                    <td>Week 4-5</td>
+                    <td>8 days</td>
+                    <td>$5K</td>
+                    <td>Security context, NetworkPolicy, image scanning, distributed tracing</td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>TOTAL RISK REMEDIATION</strong></td>
+                    <td><strong>30 days</strong></td>
+                    <td><strong>$26.5K</strong></td>
+                    <td>Service hardened for production; risks reduced from 8.2/10 to 2.0/10</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>Risk Dependency Map</h2>
+            <p><strong>Critical Dependencies (must fix P0 before P1):</strong></p>
+            <ul>
+                <li>Credentials in Vault → enables secure service integration</li>
+                <li>Input Validation → prevents injection attacks in all endpoints</li>
+                <li>Rate Limiting → enables safe external exposure</li>
+                <li>P0 + P1 together → enables safe scaling with multi-replica deployment</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>References to Detailed Findings</h2>
+            <div class="link-box">
+                🔒 <strong>Security Vulnerabilities:</strong> See <a href="../../detailed_findings/security/">Security Analysis</a> for detailed vulnerability assessment
+            </div>
+            <div class="link-box">
+                ⚡ <strong>Performance Bottlenecks:</strong> See <a href="../../detailed_findings/performance/">Performance Analysis</a> for latency and throughput constraints
+            </div>
+            <div class="link-box">
+                📦 <strong>Deployment Issues:</strong> See <a href="../../detailed_findings/deployment/">Deployment Analysis</a> for HA and scalability gaps
+            </div>
+        </div>
+
+        <nav class="nav-links">
+            <a href="../technical_patterns/">← Technical Patterns</a>
+            <a href="../modernization_patterns/">Next: Modernization Patterns →</a>
+        </nav>
+    </div>
+</body>
+</html>
