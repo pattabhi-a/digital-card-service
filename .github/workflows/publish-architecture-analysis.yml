@@ -41,6 +41,45 @@ jobs:
           test -f strategic/executive-summary.html || exit 1
           echo "✅ All HTML documents validated"
 
+      - name: Test Confluence Connection
+        run: |
+          base_url="${{ secrets.CONFLUENCE_BASE_URL }}"
+          username="${{ secrets.CONFLUENCE_USERNAME }}"
+          api_token="${{ secrets.CONFLUENCE_API_TOKEN }}"
+
+          if [ -z "$base_url" ] || [ -z "$username" ] || [ -z "$api_token" ]; then
+            echo "❌ Missing Confluence credentials"
+            echo "  base_url length: ${#base_url}"
+            echo "  username length: ${#username}"
+            echo "  api_token length: ${#api_token}"
+            exit 1
+          fi
+
+          echo "✅ Credentials found"
+          echo "  base_url: $base_url"
+          echo "  username: $username (first char: ${username:0:1})"
+
+          # Test with curl
+          echo "Testing Confluence API connection..."
+          base_url="${base_url%/}"
+          response=$(curl -s -w "\n%{http_code}" -u "$username:$api_token" \
+            "$base_url/wiki/rest/api/v2/spaces" \
+            -H "Content-Type: application/json")
+
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | head -n-1)
+
+          echo "  HTTP Status: $http_code"
+          echo "  Response preview: $(echo "$body" | head -c 200)"
+
+          if [ "$http_code" = "200" ]; then
+            echo "✅ Connection successful!"
+          elif [ "$http_code" = "401" ]; then
+            echo "❌ Unauthorized - credentials may be invalid"
+          else
+            echo "⚠️ Got status $http_code"
+          fi
+
       - name: Publish to Confluence
         run: |
           python3 << 'PYTHON_EOF'
@@ -48,11 +87,17 @@ jobs:
           import base64
           import json
           import sys
+          import os
 
           # Configuration
           base_url = "${{ secrets.CONFLUENCE_BASE_URL }}"
           username = "${{ secrets.CONFLUENCE_USERNAME }}"
           api_token = "${{ secrets.CONFLUENCE_API_TOKEN }}"
+
+          # Debug: verify secrets are populated
+          print(f"DEBUG: base_url exists: {bool(base_url)}")
+          print(f"DEBUG: username exists: {bool(username)}")
+          print(f"DEBUG: api_token exists: {bool(api_token)}")
 
           if not all([base_url, username, api_token]):
             print("⚠️ Confluence credentials not fully configured")
