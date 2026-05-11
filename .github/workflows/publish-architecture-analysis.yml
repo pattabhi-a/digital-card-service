@@ -71,13 +71,37 @@ jobs:
           try:
             # Ensure base_url doesn't have trailing slash
             base_url = base_url.rstrip('/')
+            print(f"Base URL: {base_url}")
 
             # Test connection first
             print("\n1️⃣ Testing Confluence connection...")
-            test_url = f"{base_url}/wiki/rest/api/v2/spaces"
-            print(f"   Testing: {test_url}")
-            response = requests.get(test_url, headers=headers, timeout=10)
-            print(f"   Status: {response.status_code}")
+
+            # Try different API endpoint variations
+            endpoints_to_try = [
+              f"{base_url}/wiki/rest/api/v2/spaces",
+              f"{base_url}/rest/api/v2/spaces",
+              f"{base_url}/rest/api/space",
+              f"{base_url}/wiki/rest/api/content"
+            ]
+
+            response = None
+            test_url = None
+            for endpoint in endpoints_to_try:
+              print(f"   Trying: {endpoint}")
+              try:
+                response = requests.get(endpoint, headers=headers, timeout=5)
+                print(f"      Status: {response.status_code}")
+                if response.status_code in [200, 401, 403]:
+                  test_url = endpoint
+                  break
+              except:
+                pass
+
+            if not response or response.status_code == 404:
+              print("   ⚠️ All endpoints returned 404")
+              print("   Please verify your CONFLUENCE_BASE_URL is correct")
+              print(f"   Expected format: https://your-workspace.atlassian.net")
+              sys.exit(0)
 
             if response.status_code == 200:
               spaces = response.json().get("results", [])
