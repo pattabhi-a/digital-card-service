@@ -43,30 +43,70 @@ jobs:
 
       - name: Publish to Confluence
         run: |
-          AUTH=$(echo -n "${{ secrets.CONFLUENCE_USERNAME }}:${{ secrets.CONFLUENCE_API_TOKEN }}" | base64)
+          python3 << 'PYTHON_EOF'
+          import requests
+          import base64
+          import json
+          import sys
 
-          PAYLOAD='{"type":"page","title":"Digital Card Service - Architecture Analysis","space":{"key":"SD"},"body":{"storage":{"value":"<h1>Digital Card Service Architecture Analysis</h1><p>Architecture analysis document</p>","representation":"storage"}}}'
+          # Configuration
+          base_url = "${{ secrets.CONFLUENCE_BASE_URL }}"
+          username = "${{ secrets.CONFLUENCE_USERNAME }}"
+          api_token = "${{ secrets.CONFLUENCE_API_TOKEN }}"
 
-          echo "Attempting to publish to Confluence..."
+          if not all([base_url, username, api_token]):
+            print("⚠️ Confluence credentials not fully configured")
+            sys.exit(0)
 
-          HTTP_CODE=$(curl -s -o response.json -w "%{http_code}" \
-            -X POST \
-            -H "Authorization: Basic $AUTH" \
-            -H "Content-Type: application/json" \
-            -d "$PAYLOAD" \
-            "${{ secrets.CONFLUENCE_BASE_URL }}/rest/api/content")
+          # Prepare auth
+          auth_string = f"{username}:{api_token}"
+          auth_header = "Basic " + base64.b64encode(auth_string.encode()).decode()
 
-          echo "HTTP Status Code: $HTTP_CODE"
-          cat response.json
+          # Page payload
+          payload = {
+            "type": "page",
+            "title": "Digital Card Service - Architecture Analysis",
+            "space": {"key": "SD"},
+            "body": {
+              "storage": {
+                "value": "<h1>Digital Card Service Architecture Analysis</h1><p>Comprehensive enterprise architecture analysis</p>",
+                "representation": "storage"
+              }
+            }
+          }
 
-          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
-            echo "✅ Page published to Confluence successfully"
-            cat response.json | grep -o '"id":"[^"]*"' | head -1
-          else
-            echo "❌ Failed to publish (HTTP $HTTP_CODE)"
-            echo "Response:"
-            cat response.json
-          fi
+          # Headers
+          headers = {
+            "Authorization": auth_header,
+            "Content-Type": "application/json"
+          }
+
+          try:
+            print(f"Publishing to: {base_url}/rest/api/content")
+            response = requests.post(
+              f"{base_url}/rest/api/content",
+              json=payload,
+              headers=headers,
+              timeout=10
+            )
+
+            print(f"HTTP Status: {response.status_code}")
+            print(f"Response: {response.text}")
+
+            if response.status_code in [200, 201]:
+              data = response.json()
+              page_id = data.get("id")
+              print(f"✅ Page published successfully!")
+              print(f"Page ID: {page_id}")
+            else:
+              print(f"❌ Failed to publish (HTTP {response.status_code})")
+              print("Check credentials and space key 'SD'")
+
+          except Exception as e:
+            print(f"❌ Error: {e}")
+            sys.exit(1)
+
+          PYTHON_EOF
 
       - name: Create summary
         run: |
