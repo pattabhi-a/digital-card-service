@@ -5,6 +5,7 @@ on:
     branches:
       - feat/architecture-analysis
     paths:
+      - '.github/workflows/publish-architecture-analysis.yml'
       - 'detailed_findings/**'
       - 'synthesis_patterns/**'
       - 'strategic/**'
