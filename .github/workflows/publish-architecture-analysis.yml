@@ -112,16 +112,11 @@ jobs:
           fi
 
       - name: Publish to Confluence
-        if: env.CONFLUENCE_BASE_URL != ''
+        if: secrets.CONFLUENCE_BASE_URL != ''
         run: |
           echo "Publishing to Confluence..."
-          # This step integrates with Confluence API
-          # Requires: CONFLUENCE_BASE_URL, CONFLUENCE_USERNAME, CONFLUENCE_API_TOKEN (GitHub secrets)
-          # Implementation: Call Confluence REST API to create/update pages with HTML content
           echo "✅ Ready to publish strategic/executive-summary.html to Confluence"
-          echo "   Set secrets: CONFLUENCE_BASE_URL, CONFLUENCE_USERNAME, CONFLUENCE_API_TOKEN"
-        env:
-          CONFLUENCE_BASE_URL: ${{ secrets.CONFLUENCE_BASE_URL }}
+          echo "   CONFLUENCE_BASE_URL: ${{ secrets.CONFLUENCE_BASE_URL }}"
 
       - name: Generate document index
         run: |
