@@ -42,7 +42,6 @@ jobs:
           echo "✅ All HTML documents validated"
 
       - name: Publish to Confluence
-        if: secrets.CONFLUENCE_BASE_URL != '' && secrets.CONFLUENCE_USERNAME != '' && secrets.CONFLUENCE_API_TOKEN != ''
         run: |
           AUTH=$(echo -n "${{ secrets.CONFLUENCE_USERNAME }}:${{ secrets.CONFLUENCE_API_TOKEN }}" | base64)
 
