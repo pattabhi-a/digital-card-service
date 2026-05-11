@@ -60,11 +60,10 @@ jobs:
 
           base_url = base_url.rstrip('/')
 
-          # Prepare auth
-          auth_string = f"{username}:{api_token}"
-          auth_header = "Basic " + base64.b64encode(auth_string.encode()).decode()
+          # Prepare auth using HTTPBasicAuth (more reliable)
+          from requests.auth import HTTPBasicAuth
+          auth = HTTPBasicAuth(username, api_token)
           headers = {
-            "Authorization": auth_header,
             "Content-Type": "application/json"
           }
 
@@ -86,7 +85,7 @@ jobs:
             print("Step 1: Getting space ID for 'SD'...")
             spaces_url = f"{base_url}/wiki/rest/api/v2/spaces"
             print(f"  URL: {spaces_url}")
-            spaces_response = requests.get(spaces_url, headers=headers, timeout=10)
+            spaces_response = requests.get(spaces_url, headers=headers, auth=auth, timeout=10)
             print(f"  Status: {spaces_response.status_code}")
 
             space_id = None
@@ -105,7 +104,7 @@ jobs:
               payload_v2["spaceId"] = space_id
               api_url = f"{base_url}/wiki/rest/api/v2/pages"
               print(f"  URL: {api_url}")
-              response = requests.post(api_url, json=payload_v2, headers=headers, timeout=10)
+              response = requests.post(api_url, json=payload_v2, headers=headers, auth=auth, timeout=10)
             else:
               # Fallback to v1 API with space key
               print("  Space ID not found, trying v1 API...")
@@ -122,7 +121,7 @@ jobs:
               }
               api_url = f"{base_url}/rest/api/content"
               print(f"  URL: {api_url}")
-              response = requests.post(api_url, json=payload_v1, headers=headers, timeout=10)
+              response = requests.post(api_url, json=payload_v1, headers=headers, auth=auth, timeout=10)
 
             print(f"  HTTP Status: {response.status_code}")
 
