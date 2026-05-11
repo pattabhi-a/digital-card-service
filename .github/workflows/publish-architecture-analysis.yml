@@ -24,8 +24,6 @@ jobs:
       - name: Validate HTML documents
         run: |
           echo "Validating HTML documents..."
-
-          # Check detailed_findings
           test -f detailed_findings/business_context/index.html || exit 1
           test -f detailed_findings/capabilities/index.html || exit 1
           test -f detailed_findings/code_issues/index.html || exit 1
@@ -33,8 +31,6 @@ jobs:
           test -f detailed_findings/performance/index.html || exit 1
           test -f detailed_findings/deployment/index.html || exit 1
           test -f detailed_findings/nfrs/index.html || exit 1
-
-          # Check synthesis_patterns
           test -f synthesis_patterns/business_capability_synthesis/index.html || exit 1
           test -f synthesis_patterns/technical_patterns/index.html || exit 1
           test -f synthesis_patterns/risk_synthesis/index.html || exit 1
@@ -42,78 +38,45 @@ jobs:
           test -f synthesis_patterns/scalability_blueprint/index.html || exit 1
           test -f synthesis_patterns/observability_strategy/index.html || exit 1
           test -f synthesis_patterns/devops_maturity/index.html || exit 1
-
-          # Check strategic
           test -f strategic/executive-summary.html || exit 1
-
           echo "✅ All HTML documents validated"
 
       - name: Publish to Confluence
+        if: secrets.CONFLUENCE_BASE_URL != '' && secrets.CONFLUENCE_USERNAME != '' && secrets.CONFLUENCE_API_TOKEN != ''
         run: |
-          if [ -z "$CONFLUENCE_URL" ] || [ -z "$CONFLUENCE_USER" ] || [ -z "$CONFLUENCE_TOKEN" ]; then
-            echo "⚠️ Confluence credentials not configured"
-            exit 0
-          fi
+          AUTH=$(echo -n "${{ secrets.CONFLUENCE_USERNAME }}:${{ secrets.CONFLUENCE_API_TOKEN }}" | base64)
 
-          # Read the HTML file
-          HTML_CONTENT=$(cat strategic/executive-summary.html)
+          PAYLOAD='{"type":"page","title":"Digital Card Service - Architecture Analysis","space":{"key":"SD"},"body":{"storage":{"value":"<h1>Digital Card Service Architecture Analysis</h1><p>Architecture analysis document</p>","representation":"storage"}}}'
 
-          # Create Confluence page payload
-          PAYLOAD=$(cat <<'PAYLOAD_EOF'
-          {
-            "type": "page",
-            "title": "Digital Card Service - Architecture Analysis",
-            "space": {"key": "SD"},
-            "body": {
-              "storage": {
-                "value": "<div><h1>Digital Card Service Architecture Analysis</h1><p>See attached HTML document for full analysis.</p></div>",
-                "representation": "storage"
-              }
-            }
-          }
-          PAYLOAD_EOF
-          )
+          echo "Attempting to publish to Confluence..."
 
-          # Publish to Confluence
-          echo "Publishing to: $CONFLUENCE_URL/rest/api/content"
-          echo "Space: SD"
-
-          RESPONSE=$(curl -v -X POST \
-            -H "Authorization: Basic $(echo -n "$CONFLUENCE_USER:$CONFLUENCE_TOKEN" | base64)" \
+          HTTP_CODE=$(curl -s -o response.json -w "%{http_code}" \
+            -X POST \
+            -H "Authorization: Basic $AUTH" \
             -H "Content-Type: application/json" \
             -d "$PAYLOAD" \
-            "$CONFLUENCE_URL/rest/api/content" 2>&1)
+            "${{ secrets.CONFLUENCE_BASE_URL }}/rest/api/content")
 
-          echo "Full Response:"
-          echo "$RESPONSE"
+          echo "HTTP Status Code: $HTTP_CODE"
+          cat response.json
 
-          # Check if successful
-          if echo "$RESPONSE" | grep -q '"id"'; then
-            echo "✅ Page published to Confluence"
-            PAGE_ID=$(echo "$RESPONSE" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
-            echo "Page ID: $PAGE_ID"
+          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "201" ]; then
+            echo "✅ Page published to Confluence successfully"
+            cat response.json | grep -o '"id":"[^"]*"' | head -1
           else
-            echo "⚠️ Check Confluence response above"
-            echo "Common issues:"
-            echo "  1. Credentials might be incorrect"
-            echo "  2. API token might not have page creation permissions"
-            echo "  3. Space 'SD' might not be accessible"
+            echo "❌ Failed to publish (HTTP $HTTP_CODE)"
+            echo "Response:"
+            cat response.json
           fi
-        env:
-          CONFLUENCE_URL: ${{ secrets.CONFLUENCE_BASE_URL }}
-          CONFLUENCE_USER: ${{ secrets.CONFLUENCE_USERNAME }}
-          CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
 
       - name: Create summary
         run: |
           cat >> $GITHUB_STEP_SUMMARY << 'EOF'
           ## ✅ Architecture Analysis Validated
 
-          - **Detailed Findings:** 7 documents
-          - **Synthesis Patterns:** 7 documents
-          - **Strategic Summary:** 1 executive overview
+          - **Detailed Findings:** 7 documents ✓
+          - **Synthesis Patterns:** 7 documents ✓
+          - **Strategic Summary:** 1 executive overview ✓
 
-          ### Next Steps
-          1. Configure Confluence secrets (CONFLUENCE_BASE_URL, CONFLUENCE_USERNAME, CONFLUENCE_API_TOKEN)
-          2. Workflow will publish to Confluence when secrets are configured
+          **Confluence Publishing:** Check the workflow logs above for status
           EOF
