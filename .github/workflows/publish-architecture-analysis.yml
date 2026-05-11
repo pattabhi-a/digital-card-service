@@ -56,43 +56,41 @@ jobs:
           fi
 
           echo "✅ Credentials found"
-          echo "  base_url: $base_url"
-          echo "  username: $username (first char: ${username:0:1})"
-
-          # Test with curl
-          echo "Testing Confluence API connection..."
           base_url="${base_url%/}"
 
-          # Try v2 API first
-          echo "  Trying v2 API: $base_url/wiki/rest/api/v2/spaces"
+          # Test 1: Get current user (simplest test, no special permissions needed)
+          echo ""
+          echo "Test 1: Get current user info"
           response=$(curl -s -w "\n%{http_code}" -u "$username:$api_token" \
-            "$base_url/wiki/rest/api/v2/spaces" \
+            "$base_url/wiki/rest/api/user/current" \
             -H "Content-Type: application/json")
 
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | head -n-1)
-          echo "    Status: $http_code"
-
-          if [ "$http_code" != "200" ] && [ "$http_code" != "401" ]; then
-            # v2 failed, try v1 API
-            echo "  v2 returned $http_code, trying v1 API: $base_url/rest/api/spaces"
-            response=$(curl -s -w "\n%{http_code}" -u "$username:$api_token" \
-              "$base_url/rest/api/spaces" \
-              -H "Content-Type: application/json")
-
-            http_code=$(echo "$response" | tail -n1)
-            body=$(echo "$response" | head -n-1)
-            echo "    Status: $http_code"
-          fi
+          echo "  Status: $http_code"
 
           if [ "$http_code" = "200" ]; then
-            echo "✅ Connection successful!"
-            echo "  Response has spaces"
-          elif [ "$http_code" = "401" ]; then
-            echo "❌ Unauthorized - credentials invalid"
+            user=$(echo "$body" | grep -o '"displayName":"[^"]*"' | cut -d'"' -f4)
+            echo "  ✅ SUCCESS! Authenticated as: $user"
           else
-            echo "⚠️ Got status $http_code"
-            echo "  Response preview: $(echo "$body" | head -c 300)"
+            echo "  Response: $(echo "$body" | head -c 150)"
+          fi
+
+          # Test 2: Try to get SD space
+          echo ""
+          echo "Test 2: Get SD space"
+          response=$(curl -s -w "\n%{http_code}" -u "$username:$api_token" \
+            "$base_url/wiki/rest/api/spaces?keys=SD" \
+            -H "Content-Type: application/json")
+
+          http_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | head -n-1)
+          echo "  Status: $http_code"
+
+          if [ "$http_code" = "200" ]; then
+            echo "  ✅ Found space SD"
+          else
+            echo "  Response: $(echo "$body" | head -c 150)"
           fi
 
       - name: Publish to Confluence
