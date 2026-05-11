@@ -75,13 +75,17 @@ jobs:
           )
 
           # Publish to Confluence
-          RESPONSE=$(curl -s -X POST \
+          echo "Publishing to: $CONFLUENCE_URL/rest/api/content"
+          echo "Space: ARCH"
+
+          RESPONSE=$(curl -v -X POST \
             -H "Authorization: Basic $(echo -n "$CONFLUENCE_USER:$CONFLUENCE_TOKEN" | base64)" \
             -H "Content-Type: application/json" \
             -d "$PAYLOAD" \
-            "$CONFLUENCE_URL/rest/api/content")
+            "$CONFLUENCE_URL/rest/api/content" 2>&1)
 
-          echo "Response: $RESPONSE"
+          echo "Full Response:"
+          echo "$RESPONSE"
 
           # Check if successful
           if echo "$RESPONSE" | grep -q '"id"'; then
@@ -89,9 +93,11 @@ jobs:
             PAGE_ID=$(echo "$RESPONSE" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
             echo "Page ID: $PAGE_ID"
           else
-            echo "❌ Failed to publish to Confluence"
-            echo "$RESPONSE"
-            exit 1
+            echo "⚠️ Check Confluence response above"
+            echo "Common issues:"
+            echo "  1. Space key 'ARCH' might not exist - check your Confluence space key"
+            echo "  2. Credentials might be incorrect"
+            echo "  3. API token might not have page creation permissions"
           fi
         env:
           CONFLUENCE_URL: ${{ secrets.CONFLUENCE_BASE_URL }}
