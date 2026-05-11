@@ -71,40 +71,76 @@ jobs:
           try:
             print("Creating page in Confluence SD space...")
 
-            payload = {
-              "type": "page",
+            # Try v2 API first (preferred for Cloud)
+            payload_v2 = {
+              "spaceId": "0",  # Placeholder - will be replaced with actual space ID
               "title": "Digital Card Service - Architecture Analysis",
-              "space": {"key": "SD"},
+              "type": "page",
               "body": {
-                "storage": {
-                  "value": "<h1>Digital Card Service - Enterprise Architecture Analysis</h1><p>Comprehensive enterprise architecture modernization analysis for the MOSIP digital-card-service microservice.</p><p><strong>Analysis Sections:</strong></p><ul><li>Business Context & Capabilities</li><li>Code Quality & Technical Debt</li><li>Security Posture</li><li>Performance Analysis</li><li>Deployment Maturity</li><li>Non-Functional Requirements</li><li>Modernization Roadmap</li></ul>",
-                  "representation": "storage"
-                }
+                "representation": "storage",
+                "value": "<h1>Digital Card Service - Enterprise Architecture Analysis</h1><p>Comprehensive enterprise architecture modernization analysis for the MOSIP digital-card-service microservice.</p>"
               }
             }
 
-            api_url = f"{base_url}/wiki/rest/api/content"
-            print(f"Endpoint: {api_url}")
+            # First, get the space ID for SD
+            print("Step 1: Getting space ID for 'SD'...")
+            spaces_url = f"{base_url}/wiki/rest/api/v2/spaces"
+            print(f"  URL: {spaces_url}")
+            spaces_response = requests.get(spaces_url, headers=headers, timeout=10)
+            print(f"  Status: {spaces_response.status_code}")
 
-            response = requests.post(api_url, json=payload, headers=headers, timeout=10)
-            print(f"HTTP Status: {response.status_code}")
+            space_id = None
+            if spaces_response.status_code == 200:
+              spaces_data = spaces_response.json()
+              for space in spaces_data.get("results", []):
+                if space.get("key") == "SD":
+                  space_id = space.get("id")
+                  print(f"  ✅ Found SD space ID: {space_id}")
+                  break
+
+            # Now try to create page
+            print("\nStep 2: Creating page...")
+
+            if space_id:
+              payload_v2["spaceId"] = space_id
+              api_url = f"{base_url}/wiki/rest/api/v2/pages"
+              print(f"  URL: {api_url}")
+              response = requests.post(api_url, json=payload_v2, headers=headers, timeout=10)
+            else:
+              # Fallback to v1 API with space key
+              print("  Space ID not found, trying v1 API...")
+              payload_v1 = {
+                "type": "page",
+                "title": "Digital Card Service - Architecture Analysis",
+                "space": {"key": "SD"},
+                "body": {
+                  "storage": {
+                    "value": "<h1>Digital Card Service - Enterprise Architecture Analysis</h1><p>Comprehensive enterprise architecture modernization analysis for the MOSIP digital-card-service microservice.</p>",
+                    "representation": "storage"
+                  }
+                }
+              }
+              api_url = f"{base_url}/rest/api/content"
+              print(f"  URL: {api_url}")
+              response = requests.post(api_url, json=payload_v1, headers=headers, timeout=10)
+
+            print(f"  HTTP Status: {response.status_code}")
 
             if response.status_code in [200, 201]:
               data = response.json()
               page_id = data.get("id")
-              page_link = data.get("_links", {}).get("webui")
+              page_link = data.get("_links", {}).get("webui") or data.get("_links", {}).get("self", [{}])[0].get("href", "")
               print(f"✅ SUCCESS! Page created in Confluence")
-              print(f"Page ID: {page_id}")
+              print(f"  Page ID: {page_id}")
               if page_link:
-                print(f"URL: {page_link}")
-            elif response.status_code == 403:
-              print("⚠️ Got 403 Forbidden")
-              print("Possible solution: Check API token has 'write:pages' permission")
-              print("Or: Regenerate API token from Atlassian account settings")
+                print(f"  URL: {page_link}")
             else:
               print(f"❌ Failed with status {response.status_code}")
-              print("Response:")
-              print(response.text[:500])
+              try:
+                error_data = response.json()
+                print(f"  Error: {error_data}")
+              except:
+                print(f"  Response: {response.text[:300]}")
 
           except Exception as e:
             print(f"❌ Error: {e}")
