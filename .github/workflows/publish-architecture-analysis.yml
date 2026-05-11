@@ -58,66 +58,73 @@ jobs:
             print("⚠️ Confluence credentials not fully configured")
             sys.exit(0)
 
+          print(f"Base URL: {base_url}")
+
           # Prepare auth
           auth_string = f"{username}:{api_token}"
           auth_header = "Basic " + base64.b64encode(auth_string.encode()).decode()
-
-          # Page payload
-          payload = {
-            "type": "page",
-            "title": "Digital Card Service - Architecture Analysis",
-            "space": {"key": "SD"},
-            "body": {
-              "storage": {
-                "value": "<h1>Digital Card Service Architecture Analysis</h1><p>Comprehensive enterprise architecture analysis</p>",
-                "representation": "storage"
-              }
-            }
-          }
-
-          # Headers
           headers = {
             "Authorization": auth_header,
             "Content-Type": "application/json"
           }
 
           try:
-            # Try v2 API endpoint first
-            api_url = f"{base_url}/wiki/rest/api/v2/pages"
-            print(f"Publishing to: {api_url}")
-            response = requests.post(
-              api_url,
-              json=payload,
-              headers=headers,
-              timeout=10
-            )
+            # Test connection first
+            print("\n1️⃣ Testing Confluence connection...")
+            test_url = f"{base_url}/rest/api/space"
+            response = requests.get(test_url, headers=headers, timeout=10)
+            print(f"   Status: {response.status_code}")
 
-            # If v2 fails, try v1
-            if response.status_code == 404:
-              api_url = f"{base_url}/rest/api/content"
-              print(f"v2 API not found, trying v1: {api_url}")
-              response = requests.post(
-                api_url,
-                json=payload,
-                headers=headers,
-                timeout=10
-              )
+            if response.status_code == 200:
+              spaces = response.json().get("results", [])
+              print(f"   ✅ Connected! Found {len(spaces)} spaces")
+              space_keys = [s.get("key") for s in spaces]
+              print(f"   Available spaces: {space_keys}")
 
-            print(f"HTTP Status: {response.status_code}")
-            print(f"Response: {response.text}")
+              # Check if SD space exists
+              if "SD" in space_keys:
+                print("   ✅ Space 'SD' found!")
+              else:
+                print("   ⚠️ Space 'SD' not found in available spaces")
+                print(f"      Available: {', '.join(space_keys)}")
+            else:
+              print(f"   ⚠️ Could not connect: {response.status_code}")
+              print(f"   Response: {response.text[:200]}")
+
+            # Now attempt to create page
+            print("\n2️⃣ Creating page in SD space...")
+            payload = {
+              "type": "page",
+              "title": "Digital Card Service - Architecture Analysis",
+              "space": {"key": "SD"},
+              "body": {
+                "storage": {
+                  "value": "<h1>Digital Card Service Architecture Analysis</h1><p>Comprehensive enterprise architecture analysis document</p>",
+                  "representation": "storage"
+                }
+              }
+            }
+
+            api_url = f"{base_url}/rest/api/content"
+            response = requests.post(api_url, json=payload, headers=headers, timeout=10)
+
+            print(f"   Status: {response.status_code}")
 
             if response.status_code in [200, 201]:
               data = response.json()
               page_id = data.get("id")
-              print(f"✅ Page published successfully!")
-              print(f"Page ID: {page_id}")
+              page_url = data.get("_links", {}).get("webui", "")
+              print(f"   ✅ Page created successfully!")
+              print(f"   Page ID: {page_id}")
+              print(f"   URL: {page_url}")
             else:
-              print(f"❌ Failed to publish (HTTP {response.status_code})")
-              print("Check credentials and space key 'SD'")
+              print(f"   ❌ Failed (HTTP {response.status_code})")
+              print(f"   Response: {response.text[:500]}")
 
           except Exception as e:
             print(f"❌ Error: {e}")
-            sys.exit(1)
+            import traceback
+            traceback.print_exc()
 
           PYTHON_EOF
 
