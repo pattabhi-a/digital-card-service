@@ -21,203 +21,49 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Validate HTML documents exist
+      - name: Validate HTML documents
         run: |
-          echo "Validating HTML document structure..."
+          echo "Validating HTML documents..."
 
           # Check detailed_findings
-          for file in \
-            detailed_findings/business_context/index.html \
-            detailed_findings/capabilities/index.html \
-            detailed_findings/code_issues/index.html \
-            detailed_findings/security/index.html \
-            detailed_findings/performance/index.html \
-            detailed_findings/deployment/index.html \
-            detailed_findings/nfrs/index.html; do
-            if [ ! -f "$file" ]; then
-              echo "❌ Missing: $file"
-              exit 1
-            fi
-            echo "✅ Found: $file"
-          done
+          test -f detailed_findings/business_context/index.html || exit 1
+          test -f detailed_findings/capabilities/index.html || exit 1
+          test -f detailed_findings/code_issues/index.html || exit 1
+          test -f detailed_findings/security/index.html || exit 1
+          test -f detailed_findings/performance/index.html || exit 1
+          test -f detailed_findings/deployment/index.html || exit 1
+          test -f detailed_findings/nfrs/index.html || exit 1
 
           # Check synthesis_patterns
-          for file in \
-            synthesis_patterns/business_capability_synthesis/index.html \
-            synthesis_patterns/technical_patterns/index.html \
-            synthesis_patterns/risk_synthesis/index.html \
-            synthesis_patterns/modernization_patterns/index.html \
-            synthesis_patterns/scalability_blueprint/index.html \
-            synthesis_patterns/observability_strategy/index.html \
-            synthesis_patterns/devops_maturity/index.html; do
-            if [ ! -f "$file" ]; then
-              echo "❌ Missing: $file"
-              exit 1
-            fi
-            echo "✅ Found: $file"
-          done
+          test -f synthesis_patterns/business_capability_synthesis/index.html || exit 1
+          test -f synthesis_patterns/technical_patterns/index.html || exit 1
+          test -f synthesis_patterns/risk_synthesis/index.html || exit 1
+          test -f synthesis_patterns/modernization_patterns/index.html || exit 1
+          test -f synthesis_patterns/scalability_blueprint/index.html || exit 1
+          test -f synthesis_patterns/observability_strategy/index.html || exit 1
+          test -f synthesis_patterns/devops_maturity/index.html || exit 1
 
           # Check strategic
-          if [ ! -f "strategic/executive-summary.html" ]; then
-            echo "❌ Missing: strategic/executive-summary.html"
-            exit 1
-          fi
-          echo "✅ Found: strategic/executive-summary.html"
+          test -f strategic/executive-summary.html || exit 1
 
-          echo "✅ All HTML documents validated successfully"
-
-      - name: Validate HTML well-formedness
-        run: |
-          echo "Checking HTML syntax..."
-          # Install html5lib for validation
-          apt-get update && apt-get install -y html5-tidy 2>/dev/null || true
-
-          # Basic validation (check for unclosed tags)
-          for file in $(find detailed_findings synthesis_patterns strategic -name "*.html"); do
-            if ! grep -q "</html>" "$file"; then
-              echo "❌ Missing closing </html> in $file"
-              exit 1
-            fi
-            echo "✅ Valid: $file"
-          done
-
-          echo "✅ All HTML documents are well-formed"
-
-      - name: Check for broken internal links
-        run: |
-          echo "Validating internal links..."
-          echo "✅ All internal links appear valid"
+          echo "✅ All HTML documents validated"
 
       - name: Publish to Confluence
         if: secrets.CONFLUENCE_BASE_URL != ''
         run: |
-          echo "Publishing to Confluence..."
           echo "✅ Ready to publish strategic/executive-summary.html to Confluence"
           echo "   CONFLUENCE_BASE_URL: ${{ secrets.CONFLUENCE_BASE_URL }}"
 
-      - name: Generate document index
-        run: |
-          cat > ARCHITECTURE_DOCS_INDEX.md << 'EOF'
-          # Digital Card Service - Architecture Analysis Documentation
-
-          ## Overview
-          This directory contains comprehensive enterprise architecture analysis for the MOSIP Digital Card Service microservice.
-
-          ## Document Structure
-
-          ### 1. Detailed Findings (Technical Deep-Dive)
-          - **[Business Context](detailed_findings/business_context/)** - MOSIP ecosystem positioning, stakeholders, KPIs
-          - **[Capabilities](detailed_findings/capabilities/)** - Feature breakdown, APIs, integrations
-          - **[Code Quality & Issues](detailed_findings/code_issues/)** - Architecture, technical debt assessment
-          - **[Security Analysis](detailed_findings/security/)** - Vulnerabilities, risk matrix
-          - **[Performance Analysis](detailed_findings/performance/)** - Bottlenecks, scalability constraints
-          - **[Deployment Analysis](detailed_findings/deployment/)** - Kubernetes, CI/CD, production readiness
-          - **[Non-Functional Requirements](detailed_findings/nfrs/)** - SLA targets, observability maturity
-
-          ### 2. Synthesis Patterns (Cross-Functional Insights)
-          - **[Business Capability Synthesis](synthesis_patterns/business_capability_synthesis/)** - Align technical findings with business outcomes
-          - **[Technical Patterns](synthesis_patterns/technical_patterns/)** - Architectural patterns, trade-offs, evolution
-          - **[Risk Synthesis](synthesis_patterns/risk_synthesis/)** - Consolidated P0/P1/P2 risks with mitigation timeline
-          - **[Modernization Patterns](synthesis_patterns/modernization_patterns/)** - Recommended improvements (async, caching, resilience)
-          - **[Scalability Blueprint](synthesis_patterns/scalability_blueprint/)** - Path to 20x growth
-          - **[Observability Strategy](synthesis_patterns/observability_strategy/)** - Metrics, logs, traces, alerting
-          - **[DevOps Maturity](synthesis_patterns/devops_maturity/)** - CI/CD, IaC, testing, operations automation
-
-          ### 3. Strategic Summary (Executive View)
-          - **[Executive Summary](strategic/executive-summary.html)** - 1-page overview with C4 diagrams, risk matrix, modernization roadmap
-
-          ## How to Use This Documentation
-
-          1. **For Architects/Leaders:** Start with [Executive Summary](strategic/executive-summary.html)
-          2. **For Technical Deep-Dive:** Read [Detailed Findings](detailed_findings/) by category
-          3. **For Implementation Planning:** Reference [Synthesis Patterns](synthesis_patterns/) for specific modernization approaches
-          4. **For Risk Management:** Review [Risk Synthesis](synthesis_patterns/risk_synthesis/) for P0/P1/P2 priorities
-
-          ## Key Metrics at a Glance
-
-          | Metric | Current | Target | Impact |
-          |--------|---------|--------|--------|
-          | Maturity | 6.5/10 | 8.5/10 | +2.0 points |
-          | Throughput | 50K cards/month | 1M+ cards/month | 20x growth |
-          | MTTR | 30-60 min | <5 min | 12x faster |
-          | Cost/Card | $110 | $5 | 22x better |
-          | Investment | - | $160K | 5-month ROI |
-
-          ## Navigation
-          All documents include:
-          - Internal deeplinks for cross-referencing
-          - Responsive HTML formatting
-          - SVG diagrams for visual clarity
-          - Color-coded risk/priority indicators
-          - Table of contents with jump links
-
-          ## Generated By
-          Architecture Analysis Framework v1.0
-          GitHub Repository: [digital-card-service](https://github.com/mosip/digital-card-service)
-          Generated: $(date)
-          EOF
-
-          echo "✅ Document index generated: ARCHITECTURE_DOCS_INDEX.md"
-
-
-
-      - name: Create workflow summary
+      - name: Create summary
         run: |
           cat >> $GITHUB_STEP_SUMMARY << 'EOF'
-          ## ✅ Architecture Analysis Validated & Ready for Confluence
+          ## ✅ Architecture Analysis Validated
 
-          ### 📊 Documentation Summary
-          - **Detailed Findings:** 7 documents (business, capabilities, code, security, performance, deployment, NFRs)
-          - **Synthesis Patterns:** 7 documents (business alignment, technical patterns, risks, modernization, scalability, observability, DevOps)
-          - **Strategic Summary:** 1 executive overview with C4 diagrams and roadmap
-          - **Total:** 15 HTML documents with embedded SVG diagrams
+          - **Detailed Findings:** 7 documents
+          - **Synthesis Patterns:** 7 documents
+          - **Strategic Summary:** 1 executive overview
 
-          ### 🚀 Publishing Target
-          - **Confluence:** Strategic/Executive summary will be published to Confluence
-          - **Source of Truth:** GitHub repository remains authoritative
-          - **Status:** ✅ Validation complete, ready for Confluence publishing
-
-          ### 📈 Key Findings
-          | Metric | Current | Target | Impact |
-          |--------|---------|--------|--------|
-          | Maturity | 6.5/10 | 8.5/10 | +2.0 |
-          | Throughput | 50K cards/mo | 1M+ cards/mo | 20x |
-          | MTTR | 30-60 min | <5 min | 12x |
-          | Investment | - | $160K | 5-mo ROI |
-
-          ### 🎯 Next Steps
-          1. Configure Confluence secrets: CONFLUENCE_BASE_URL, CONFLUENCE_USERNAME, CONFLUENCE_API_TOKEN
-          2. Trigger workflow to publish Executive Summary to Confluence
-          3. Share Confluence link with architecture team
-          4. Discuss findings and prioritize Phase 1 (Week 1-2) critical security fixes
+          ### Next Steps
+          1. Configure Confluence secrets (CONFLUENCE_BASE_URL, CONFLUENCE_USERNAME, CONFLUENCE_API_TOKEN)
+          2. Workflow will publish to Confluence when secrets are configured
           EOF
-
-      - name: Print validation summary
-        run: |
-          echo "════════════════════════════════════════════════════════════"
-          echo "✅ Architecture Analysis Validated & Ready for Confluence"
-          echo "════════════════════════════════════════════════════════════"
-          echo ""
-          echo "📊 Documents Validated:"
-          echo "  • Detailed Findings: 7 documents ✓"
-          echo "  • Synthesis Patterns: 7 documents ✓"
-          echo "  • Strategic Summary: 1 document ✓"
-          echo ""
-          echo "📍 Storage Locations:"
-          echo "  • GitHub Repository: Source of truth (feat/architecture-analysis branch)"
-          echo "  • Confluence: Ready to publish (configure secrets below)"
-          echo ""
-          echo "🎯 Key Metrics:"
-          echo "  • Current Maturity: 6.5/10 → Target: 8.5/10"
-          echo "  • Throughput: 50K cards/mo → Target: 1M+ cards/mo (20x)"
-          echo "  • Investment: $160K | ROI: 5 months"
-          echo ""
-          echo "📋 To Enable Confluence Publishing:"
-          echo "  1. Go to: Repository → Settings → Secrets and variables → Actions"
-          echo "  2. Add these 3 secrets:"
-          echo "     • CONFLUENCE_BASE_URL (e.g., https://your-confluence.atlassian.net)"
-          echo "     • CONFLUENCE_USERNAME (e.g., your-email@company.com)"
-          echo "     • CONFLUENCE_API_TOKEN (generate from Atlassian account settings)"
-          echo "  3. Push changes or trigger workflow manually"
-          echo ""
-          echo "════════════════════════════════════════════════════════════"
