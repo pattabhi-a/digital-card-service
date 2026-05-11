@@ -62,22 +62,37 @@ jobs:
           # Test with curl
           echo "Testing Confluence API connection..."
           base_url="${base_url%/}"
+
+          # Try v2 API first
+          echo "  Trying v2 API: $base_url/wiki/rest/api/v2/spaces"
           response=$(curl -s -w "\n%{http_code}" -u "$username:$api_token" \
             "$base_url/wiki/rest/api/v2/spaces" \
             -H "Content-Type: application/json")
 
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | head -n-1)
+          echo "    Status: $http_code"
 
-          echo "  HTTP Status: $http_code"
-          echo "  Response preview: $(echo "$body" | head -c 200)"
+          if [ "$http_code" != "200" ] && [ "$http_code" != "401" ]; then
+            # v2 failed, try v1 API
+            echo "  v2 returned $http_code, trying v1 API: $base_url/rest/api/spaces"
+            response=$(curl -s -w "\n%{http_code}" -u "$username:$api_token" \
+              "$base_url/rest/api/spaces" \
+              -H "Content-Type: application/json")
+
+            http_code=$(echo "$response" | tail -n1)
+            body=$(echo "$response" | head -n-1)
+            echo "    Status: $http_code"
+          fi
 
           if [ "$http_code" = "200" ]; then
             echo "✅ Connection successful!"
+            echo "  Response has spaces"
           elif [ "$http_code" = "401" ]; then
-            echo "❌ Unauthorized - credentials may be invalid"
+            echo "❌ Unauthorized - credentials invalid"
           else
             echo "⚠️ Got status $http_code"
+            echo "  Response preview: $(echo "$body" | head -c 300)"
           fi
 
       - name: Publish to Confluence
