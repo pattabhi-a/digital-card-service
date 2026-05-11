@@ -50,14 +50,53 @@ jobs:
 
       - name: Publish to Confluence
         run: |
-          echo "✅ Ready to publish strategic/executive-summary.html to Confluence"
-          if [ ! -z "$CONFLUENCE_URL" ]; then
-            echo "   CONFLUENCE_BASE_URL: $CONFLUENCE_URL"
+          if [ -z "$CONFLUENCE_URL" ] || [ -z "$CONFLUENCE_USER" ] || [ -z "$CONFLUENCE_TOKEN" ]; then
+            echo "⚠️ Confluence credentials not configured"
+            exit 0
+          fi
+
+          # Read the HTML file
+          HTML_CONTENT=$(cat strategic/executive-summary.html)
+
+          # Create Confluence page payload
+          PAYLOAD=$(cat <<'PAYLOAD_EOF'
+          {
+            "type": "page",
+            "title": "Digital Card Service - Architecture Analysis",
+            "space": {"key": "ARCH"},
+            "body": {
+              "storage": {
+                "value": "<div><h1>Digital Card Service Architecture Analysis</h1><p>See attached HTML document for full analysis.</p></div>",
+                "representation": "storage"
+              }
+            }
+          }
+          PAYLOAD_EOF
+          )
+
+          # Publish to Confluence
+          RESPONSE=$(curl -s -X POST \
+            -H "Authorization: Basic $(echo -n "$CONFLUENCE_USER:$CONFLUENCE_TOKEN" | base64)" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD" \
+            "$CONFLUENCE_URL/rest/api/content")
+
+          echo "Response: $RESPONSE"
+
+          # Check if successful
+          if echo "$RESPONSE" | grep -q '"id"'; then
+            echo "✅ Page published to Confluence"
+            PAGE_ID=$(echo "$RESPONSE" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
+            echo "Page ID: $PAGE_ID"
           else
-            echo "   ⚠️ CONFLUENCE_BASE_URL secret not configured"
+            echo "❌ Failed to publish to Confluence"
+            echo "$RESPONSE"
+            exit 1
           fi
         env:
           CONFLUENCE_URL: ${{ secrets.CONFLUENCE_BASE_URL }}
+          CONFLUENCE_USER: ${{ secrets.CONFLUENCE_USERNAME }}
+          CONFLUENCE_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }}
 
       - name: Create summary
         run: |
