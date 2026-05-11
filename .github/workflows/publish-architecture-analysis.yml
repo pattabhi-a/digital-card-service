@@ -63,7 +63,7 @@ jobs:
           {
             "type": "page",
             "title": "Digital Card Service - Architecture Analysis",
-            "space": {"key": "ARCH"},
+            "space": {"key": "SD"},
             "body": {
               "storage": {
                 "value": "<div><h1>Digital Card Service Architecture Analysis</h1><p>See attached HTML document for full analysis.</p></div>",
@@ -76,7 +76,7 @@ jobs:
 
           # Publish to Confluence
           echo "Publishing to: $CONFLUENCE_URL/rest/api/content"
-          echo "Space: ARCH"
+          echo "Space: SD"
 
           RESPONSE=$(curl -v -X POST \
             -H "Authorization: Basic $(echo -n "$CONFLUENCE_USER:$CONFLUENCE_TOKEN" | base64)" \
@@ -95,9 +95,9 @@ jobs:
           else
             echo "⚠️ Check Confluence response above"
             echo "Common issues:"
-            echo "  1. Space key 'ARCH' might not exist - check your Confluence space key"
-            echo "  2. Credentials might be incorrect"
-            echo "  3. API token might not have page creation permissions"
+            echo "  1. Credentials might be incorrect"
+            echo "  2. API token might not have page creation permissions"
+            echo "  3. Space 'SD' might not be accessible"
           fi
         env:
           CONFLUENCE_URL: ${{ secrets.CONFLUENCE_BASE_URL }}
