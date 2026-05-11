@@ -58,6 +58,59 @@ jobs:
             print("⚠️ Confluence credentials not fully configured")
             sys.exit(0)
 
+          base_url = base_url.rstrip('/')
+
+          # Prepare auth
+          auth_string = f"{username}:{api_token}"
+          auth_header = "Basic " + base64.b64encode(auth_string.encode()).decode()
+          headers = {
+            "Authorization": auth_header,
+            "Content-Type": "application/json"
+          }
+
+          try:
+            print("Creating page in Confluence SD space...")
+
+            payload = {
+              "type": "page",
+              "title": "Digital Card Service - Architecture Analysis",
+              "space": {"key": "SD"},
+              "body": {
+                "storage": {
+                  "value": "<h1>Digital Card Service - Enterprise Architecture Analysis</h1><p>Comprehensive enterprise architecture modernization analysis for the MOSIP digital-card-service microservice.</p><p><strong>Analysis Sections:</strong></p><ul><li>Business Context & Capabilities</li><li>Code Quality & Technical Debt</li><li>Security Posture</li><li>Performance Analysis</li><li>Deployment Maturity</li><li>Non-Functional Requirements</li><li>Modernization Roadmap</li></ul>",
+                  "representation": "storage"
+                }
+              }
+            }
+
+            api_url = f"{base_url}/wiki/rest/api/content"
+            print(f"Endpoint: {api_url}")
+
+            response = requests.post(api_url, json=payload, headers=headers, timeout=10)
+            print(f"HTTP Status: {response.status_code}")
+
+            if response.status_code in [200, 201]:
+              data = response.json()
+              page_id = data.get("id")
+              page_link = data.get("_links", {}).get("webui")
+              print(f"✅ SUCCESS! Page created in Confluence")
+              print(f"Page ID: {page_id}")
+              if page_link:
+                print(f"URL: {page_link}")
+            elif response.status_code == 403:
+              print("⚠️ Got 403 Forbidden")
+              print("Possible solution: Check API token has 'write:pages' permission")
+              print("Or: Regenerate API token from Atlassian account settings")
+            else:
+              print(f"❌ Failed with status {response.status_code}")
+              print("Response:")
+              print(response.text[:500])
+
+          except Exception as e:
+            print(f"❌ Error: {e}")
+            import traceback
+            traceback.print_exc()
+
           print(f"Base URL: {base_url}")
 
           # Prepare auth
