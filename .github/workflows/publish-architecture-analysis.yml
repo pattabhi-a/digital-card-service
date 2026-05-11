@@ -49,10 +49,15 @@ jobs:
           echo "✅ All HTML documents validated"
 
       - name: Publish to Confluence
-        if: secrets.CONFLUENCE_BASE_URL != ''
         run: |
           echo "✅ Ready to publish strategic/executive-summary.html to Confluence"
-          echo "   CONFLUENCE_BASE_URL: ${{ secrets.CONFLUENCE_BASE_URL }}"
+          if [ ! -z "$CONFLUENCE_URL" ]; then
+            echo "   CONFLUENCE_BASE_URL: $CONFLUENCE_URL"
+          else
+            echo "   ⚠️ CONFLUENCE_BASE_URL secret not configured"
+          fi
+        env:
+          CONFLUENCE_URL: ${{ secrets.CONFLUENCE_BASE_URL }}
 
       - name: Create summary
         run: |
