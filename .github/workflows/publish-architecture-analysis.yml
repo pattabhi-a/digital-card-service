@@ -73,7 +73,8 @@ jobs:
             user=$(echo "$body" | grep -o '"displayName":"[^"]*"' | cut -d'"' -f4)
             echo "  ✅ SUCCESS! Authenticated as: $user"
           else
-            echo "  Response: $(echo "$body" | head -c 150)"
+            echo "  Full response:"
+            echo "$body"
           fi
 
           # Test 2: Try to get SD space
