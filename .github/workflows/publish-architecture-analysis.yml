@@ -59,17 +59,18 @@ jobs:
           echo "✅ Credentials found"
           base_url="${base_url%/}"
 
-          # Test 1: Get current user (simplest test, no special permissions needed)
+          # Test 1: Get current user using Atlassian API endpoint (for scoped tokens)
           echo ""
-          echo "Test 1: Get current user info"
-          echo "  URL: $base_url/wiki/rest/api/user/current"
+          echo "Test 1: Get current user info (using Atlassian API endpoint)"
+          CLOUD_ID="51a6e3e7-64cd-4be0-a9bf-696fa1bfa665"
+          API_URL="https://api.atlassian.com/ex/confluence/$CLOUD_ID/users/me"
+          echo "  URL: $API_URL"
           echo "  User: $username"
           echo "  Token length: ${#api_token}"
 
           response=$(curl -s -w "\n%{http_code}" -u "$username:$api_token" \
-            "$base_url/wiki/rest/api/user/current" \
-            -H "Content-Type: application/json" \
-            -H "User-Agent: GitHub-Actions")
+            "$API_URL" \
+            -H "Content-Type: application/json")
 
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | head -n-1)
@@ -90,11 +91,11 @@ jobs:
             echo "$body" | head -c 500
           fi
 
-          # Test 2: Try to get SD space
+          # Test 2: Try to get SD space using Atlassian API endpoint
           echo ""
-          echo "Test 2: Get SD space"
+          echo "Test 2: Get SD space (using Atlassian API endpoint)"
           response=$(curl -s -w "\n%{http_code}" -u "$username:$api_token" \
-            "$base_url/wiki/rest/api/spaces?keys=SD" \
+            "https://api.atlassian.com/ex/confluence/$CLOUD_ID/spaces?keys=SD" \
             -H "Content-Type: application/json")
 
           http_code=$(echo "$response" | tail -n1)
