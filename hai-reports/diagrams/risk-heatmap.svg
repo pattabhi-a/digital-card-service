@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 600" font-family="system-ui,sans-serif" font-size="11">
+<rect width="700" height="600" fill="#fff"/>
+<text x="350" y="24" text-anchor="middle" font-size="16" font-weight="bold">Risk Heatmap (Likelihood × Impact)</text>
+
+<!-- Grid -->
+<g stroke="#bbb" fill="none">
+<rect x="120" y="60" width="500" height="450"/>
+</g>
+
+<!-- Cell colors (5x5: low-left green, top-right red) -->
+<g>
+<!-- 5 cols, 5 rows; col=likelihood, row=impact (impact high at top) -->
+<g transform="translate(120,60)">
+<!-- Row impact=Catastrophic -->
+<rect x="0" y="0" width="100" height="90" fill="#fef3c7"/>
+<rect x="100" y="0" width="100" height="90" fill="#fed7aa"/>
+<rect x="200" y="0" width="100" height="90" fill="#fca5a5"/>
+<rect x="300" y="0" width="100" height="90" fill="#f87171"/>
+<rect x="400" y="0" width="100" height="90" fill="#dc2626"/>
+<rect x="0" y="90" width="100" height="90" fill="#fef3c7"/>
+<rect x="100" y="90" width="100" height="90" fill="#fed7aa"/>
+<rect x="200" y="90" width="100" height="90" fill="#fdba74"/>
+<rect x="300" y="90" width="100" height="90" fill="#fb923c"/>
+<rect x="400" y="90" width="100" height="90" fill="#f87171"/>
+<rect x="0" y="180" width="100" height="90" fill="#dcfce7"/>
+<rect x="100" y="180" width="100" height="90" fill="#fef3c7"/>
+<rect x="200" y="180" width="100" height="90" fill="#fed7aa"/>
+<rect x="300" y="180" width="100" height="90" fill="#fdba74"/>
+<rect x="400" y="180" width="100" height="90" fill="#fb923c"/>
+<rect x="0" y="270" width="100" height="90" fill="#bbf7d0"/>
+<rect x="100" y="270" width="100" height="90" fill="#dcfce7"/>
+<rect x="200" y="270" width="100" height="90" fill="#fef3c7"/>
+<rect x="300" y="270" width="100" height="90" fill="#fed7aa"/>
+<rect x="400" y="270" width="100" height="90" fill="#fdba74"/>
+<rect x="0" y="360" width="100" height="90" fill="#86efac"/>
+<rect x="100" y="360" width="100" height="90" fill="#bbf7d0"/>
+<rect x="200" y="360" width="100" height="90" fill="#dcfce7"/>
+<rect x="300" y="360" width="100" height="90" fill="#fef3c7"/>
+<rect x="400" y="360" width="100" height="90" fill="#fed7aa"/>
+<g stroke="#aaa" fill="none">
+<line x1="100" y1="0" x2="100" y2="450"/>
+<line x1="200" y1="0" x2="200" y2="450"/>
+<line x1="300" y1="0" x2="300" y2="450"/>
+<line x1="400" y1="0" x2="400" y2="450"/>
+<line x1="0" y1="90" x2="500" y2="90"/>
+<line x1="0" y1="180" x2="500" y2="180"/>
+<line x1="0" y1="270" x2="500" y2="270"/>
+<line x1="0" y1="360" x2="500" y2="360"/>
+</g>
+</g>
+</g>
+
+<!-- Y axis labels (Impact) -->
+<g text-anchor="end" font-size="10">
+<text x="115" y="110">Catastrophic</text>
+<text x="115" y="200">Major</text>
+<text x="115" y="290">Moderate</text>
+<text x="115" y="380">Minor</text>
+<text x="115" y="470">Low</text>
+</g>
+<text x="60" y="290" font-weight="bold" transform="rotate(-90 60 290)" text-anchor="middle">Impact →</text>
+
+<!-- X axis labels (Likelihood) -->
+<g text-anchor="middle" font-size="10">
+<text x="170" y="530">Rare</text>
+<text x="270" y="530">Unlikely</text>
+<text x="370" y="530">Possible</text>
+<text x="470" y="530">Likely</text>
+<text x="570" y="530">Almost Certain</text>
+</g>
+<text x="370" y="555" text-anchor="middle" font-weight="bold">Likelihood →</text>
+
+<!-- Risk dots: (row,col) -> coordinates -->
+<!-- 1 secrets in repo: Likely, Catastrophic -->
+<g><circle cx="470" cy="105" r="10" fill="#7f1d1d" stroke="#fff" stroke-width="2"/><text x="488" y="108" font-size="10">1 Secrets in repo</text></g>
+<!-- 2 HTTP 200 errors: Almost Certain, Major -->
+<g><circle cx="570" cy="195" r="10" fill="#991b1b" stroke="#fff" stroke-width="2"/><text x="488" y="180" font-size="10">2 HTTP 200 on errors</text></g>
+<!-- 3 Sync PDF: Almost Certain, Major -->
+<g><circle cx="555" cy="215" r="10" fill="#991b1b" stroke="#fff" stroke-width="2"/><text x="375" y="220" font-size="10">3 Sync PDF</text></g>
+<!-- 4 No tests: Almost Certain, Major -->
+<g><circle cx="585" cy="225" r="10" fill="#991b1b" stroke="#fff" stroke-width="2"/><text x="430" y="245" font-size="10">4 No tests</text></g>
+<!-- 5 Exception swallow: Likely, Major -->
+<g><circle cx="470" cy="195" r="10" fill="#b91c1c" stroke="#fff" stroke-width="2"/><text x="380" y="195" font-size="10">5 Exc swallow</text></g>
+<!-- 6 Sensitive logs: Likely, Major -->
+<g><circle cx="455" cy="215" r="10" fill="#b91c1c" stroke="#fff" stroke-width="2"/><text x="350" y="265" font-size="10">6 Sensitive logs</text></g>
+<!-- 7 No caching: Almost Certain, Moderate -->
+<g><circle cx="570" cy="285" r="10" fill="#c2410c" stroke="#fff" stroke-width="2"/><text x="488" y="288" font-size="10">7 No caching</text></g>
+<!-- 8 No tracing: Possible, Major -->
+<g><circle cx="370" cy="195" r="10" fill="#c2410c" stroke="#fff" stroke-width="2"/><text x="282" y="170" font-size="10">8 No tracing</text></g>
+<!-- 9 Small thread pool: Almost Certain, Moderate -->
+<g><circle cx="555" cy="305" r="10" fill="#c2410c" stroke="#fff" stroke-width="2"/><text x="430" y="320" font-size="10">9 Small pool</text></g>
+<!-- 10 No HPA: Possible, Moderate -->
+<g><circle cx="370" cy="285" r="10" fill="#a16207" stroke="#fff" stroke-width="2"/><text x="282" y="285" font-size="10">10 No HPA</text></g>
+
+</svg>

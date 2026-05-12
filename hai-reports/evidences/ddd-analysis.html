@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>DDD Analysis</title><script src="https://cdn.tailwindcss.com"></script><script>tailwind.config={darkMode:'class'}</script></head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+<header class="sticky top-0 z-10 bg-white dark:bg-gray-800 shadow px-4 py-3 flex justify-between items-center border-b dark:border-gray-700">
+<div><a href="../README.md" class="text-blue-600 hover:underline">← Index</a> <span class="ml-3 text-sm text-gray-500">Evidence</span> <span class="ml-3 font-bold">ddd-analysis.html</span></div>
+<button onclick="document.documentElement.classList.toggle('dark')" class="px-3 py-1 border rounded">🌓</button></header>
+<main class="max-w-6xl mx-auto p-6">
+<h1 class="text-3xl font-bold mb-4">DDD Analysis</h1>
+<section class="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 p-4 mb-6 rounded"><b>TL;DR</b>
+<ul class="list-disc list-inside text-sm mt-2 space-y-1">
+<li>Bounded context: "Digital Card Issuance" — distinct from Credential Service and Registration Processor.</li>
+<li>Single aggregate: <code>DigitalCardTransactionEntity</code> (rid as natural id).</li>
+<li>Anaemic — entity has no behavior; orchestration sits in DigitalCardServiceImpl.</li>
+<li>Status state-machine ("NEW"→"AVAILABLE"/"ERROR") implicit in service code, not in domain object.</li>
+<li>Value-object candidates: CredentialPassword (derived), DataShareUrl, CredentialId.</li>
+</ul></section>
+
+<h2 class="text-xl font-bold mt-6 mb-2">Domain Map</h2>
+<table class="w-full text-sm border">
+<thead class="bg-gray-200 dark:bg-gray-700"><tr><th class="p-2">Element</th><th class="p-2">Type</th><th class="p-2">Evidence</th></tr></thead>
+<tbody>
+<tr class="border-t"><td class="p-2">DigitalCardTransactionEntity</td><td class="p-2">Aggregate root (entity)</td><td class="p-2 font-mono text-xs">entity/DigitalCardTransactionEntity.java</td></tr>
+<tr class="border-t"><td class="p-2">CredentialResponse</td><td class="p-2">DTO from upstream</td><td class="p-2 font-mono text-xs">dto/CredentialResponse.java</td></tr>
+<tr class="border-t"><td class="p-2">DataShareDto.url</td><td class="p-2">VO candidate</td><td class="p-2 font-mono text-xs">dto/DataShareDto.java</td></tr>
+<tr class="border-t"><td class="p-2">Status string ("NEW","AVAILABLE","ERROR")</td><td class="p-2">Implicit enum</td><td class="p-2 font-mono text-xs">DigitalCardServiceImpl.java:206,223,320</td></tr>
+<tr class="border-t"><td class="p-2">PDF byte[] artifact</td><td class="p-2">Domain output</td><td class="p-2 font-mono text-xs">PDFCardServiceImpl.java:146</td></tr>
+</tbody></table>
+
+<h2 class="text-xl font-bold mt-6 mb-2">REST Surface (Bounded-Context API)</h2>
+<ol class="list-decimal list-inside text-sm space-y-1">
+<li>POST /idCreateEventHandle/callback/notifyStatus (controller:47)</li>
+<li>POST /idUpdateEventHandle/callback/notifyStatus (controller:62)</li>
+<li>POST /credential/callback/notifyStatus (controller:77)</li>
+<li>GET /{rid} (controller:100)</li>
+</ol>
+
+<h2 class="text-xl font-bold mt-6 mb-2">Anaemia Indicators</h2>
+<p class="text-sm">All business rules — password derivation (DigitalCardServiceImpl:252-294), status transitions (210-227), error logging (319-321) — live in the service. The entity carries only field accessors. <span class="bg-orange-100 text-orange-800 px-2 rounded text-xs">High</span></p>
+
+<p class="mt-4"><a class="text-blue-600 hover:underline" href="../patterns/technical-patterns-synthesis.html">→ See pattern: technical synthesis</a></p>
+<footer class="mt-12 border-t pt-4 text-sm text-gray-500">Generated 2026-05-12 · branch <code>feat/hai-analysis-reports</code></footer>
+</main></body></html>

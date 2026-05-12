@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Decision Records</title><script src="https://cdn.tailwindcss.com"></script><script>tailwind.config={darkMode:'class'}</script></head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+<header class="sticky top-0 z-10 bg-white dark:bg-gray-800 shadow px-4 py-3 flex justify-between items-center border-b dark:border-gray-700">
+<div><a href="../README.md" class="text-blue-600 hover:underline">← Index</a> <span class="ml-3 text-sm text-gray-500">Strategy</span> <span class="ml-3 font-bold">decision-records.html</span></div>
+<button onclick="document.documentElement.classList.toggle('dark')" class="px-3 py-1 border rounded">🌓</button></header>
+<main class="max-w-6xl mx-auto p-6">
+<h1 class="text-3xl font-bold mb-4">Architecture Decision Records</h1>
+
+<div class="space-y-3">
+
+<details open class="border rounded p-3 bg-white dark:bg-gray-800"><summary class="font-bold">ADR-001 — WebSub for credential lifecycle events</summary>
+<dl class="text-sm mt-2 space-y-1">
+<dt class="font-semibold">Status</dt><dd>Accepted (in code).</dd>
+<dt class="font-semibold">Context</dt><dd>Service must react to identity create/update and credential-ready events from Registration Processor and Credential Service.</dd>
+<dt class="font-semibold">Decision</dt><dd>Use MOSIP kernel WebSub publisher/subscriber with HMAC intent verification (controller:49,64,79).</dd>
+<dt class="font-semibold">Alternatives</dt><dd>Polling, Kafka direct.</dd>
+<dt class="font-semibold">Consequences</dt><dd>Loose coupling; relies on hub re-delivery; current code swallows errors blocking re-delivery (controller:56).</dd>
+<dt class="font-semibold">Evidence</dt><dd><code>DigitalCardController.java:47-98</code>; <code>DigitalCardInitializer.java:88-101</code>.</dd>
+</dl></details>
+
+<details class="border rounded p-3 bg-white dark:bg-gray-800"><summary class="font-bold">ADR-002 — PostgreSQL via JPA for transaction state</summary>
+<dl class="text-sm mt-2 space-y-1">
+<dt class="font-semibold">Decision</dt><dd>Single entity DigitalCardTransactionEntity persisted via Spring Data JPA.</dd>
+<dt class="font-semibold">Trade-offs</dt><dd>Strong consistency; status transitions not atomic with WebSub publish.</dd>
+<dt class="font-semibold">Evidence</dt><dd><code>repositories/DigitalCardTransactionRepository.java:23,28</code> (transactional updates).</dd>
+</dl></details>
+
+<details class="border rounded p-3 bg-white dark:bg-gray-800"><summary class="font-bold">ADR-003 — Spring Boot 3.2.3</summary>
+<dl class="text-sm mt-2 space-y-1">
+<dt class="font-semibold">Decision</dt><dd>Spring Boot 3.x with jakarta.servlet (ApiExceptionHandler.java:25 imports jakarta).</dd>
+<dt class="font-semibold">Trade-offs</dt><dd>Modern; minimum Java 17; some MOSIP kernel libs lag.</dd>
+</dl></details>
+
+<details class="border rounded p-3 bg-white dark:bg-gray-800"><summary class="font-bold">ADR-004 — Kubernetes deployment via Helm + Istio</summary>
+<dl class="text-sm mt-2 space-y-1">
+<dt class="font-semibold">Decision</dt><dd>Helm chart with VirtualService for traffic, ServiceMonitor for Prometheus.</dd>
+<dt class="font-semibold">Evidence</dt><dd><code>helm/digitalcard/templates/{deployment,virtualservice,servicemonitor}.yaml</code>.</dd>
+<dt class="font-semibold">Gap</dt><dd>No HPA template — see <a class="text-blue-600 hover:underline" href="../patterns/devops-maturity.html">devops-maturity</a>.</dd>
+</dl></details>
+
+<details class="border rounded p-3 bg-white dark:bg-gray-800"><summary class="font-bold">ADR-005 — External KeyManager for crypto</summary>
+<dl class="text-sm mt-2 space-y-1">
+<dt class="font-semibold">Decision</dt><dd>Decryption delegated to MOSIP CryptoManager via REST.</dd>
+<dt class="font-semibold">Evidence</dt><dd><code>EncryptionUtil.java:84</code> POST to ApiName.CRYPTOMANAGER_DECRYPT.</dd>
+<dt class="font-semibold">Trade-offs</dt><dd>No key material in-process (good); per-card network call latency (acceptable; see <a class="text-blue-600 hover:underline" href="../evidences/performance-profile.html">perf evidence</a>).</dd>
+</dl></details>
+
+</div>
+
+<footer class="mt-12 border-t pt-4 text-sm text-gray-500">Generated 2026-05-12</footer>
+</main></body></html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Risk Synthesis</title><script src="https://cdn.tailwindcss.com"></script><script>tailwind.config={darkMode:'class'}</script></head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+<header class="sticky top-0 z-10 bg-white dark:bg-gray-800 shadow px-4 py-3 flex justify-between items-center border-b dark:border-gray-700">
+<div><a href="../README.md" class="text-blue-600 hover:underline">← Index</a> <span class="ml-3 text-sm text-gray-500">Pattern</span> <span class="ml-3 font-bold">risk-synthesis.html</span></div>
+<button onclick="document.documentElement.classList.toggle('dark')" class="px-3 py-1 border rounded">🌓</button></header>
+<main class="max-w-6xl mx-auto p-6">
+<h1 class="text-3xl font-bold mb-4">Risk Synthesis</h1>
+<section class="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 p-4 mb-6 rounded"><b>TL;DR</b>
+<ul class="list-disc list-inside text-sm mt-2 space-y-1">
+<li>4 critical risks (red), 4 high (orange), 2 medium (yellow).</li>
+<li>Highest exposure: secrets in repo + HTTP-200-on-error blinds operators.</li>
+<li>0% test coverage in DigitalCardServiceImpl (no <code>DigitalCardServiceImplTest.java</code> found).</li>
+</ul></section>
+
+<img src="../diagrams/risk-heatmap.svg" alt="Risk heatmap" class="mx-auto border bg-white p-2 rounded my-4 max-w-full"/>
+
+<h2 class="text-xl font-bold mt-6 mb-2">Top 10 Risks</h2>
+<table class="w-full text-sm border">
+<thead class="bg-gray-200 dark:bg-gray-700"><tr><th class="p-2">#</th><th class="p-2">Risk</th><th class="p-2">L</th><th class="p-2">I</th><th class="p-2">Evidence</th><th class="p-2">Mitigation</th></tr></thead>
+<tbody>
+<tr class="border-t bg-red-50 dark:bg-red-900/30"><td class="p-2">1</td><td class="p-2">Plaintext secrets in repo</td><td class="p-2">High</td><td class="p-2">Catastrophic</td><td class="p-2 font-mono text-xs">application-local1.properties:4,25,54</td><td class="p-2">Vault + sealed secrets</td></tr>
+<tr class="border-t bg-red-50 dark:bg-red-900/30"><td class="p-2">2</td><td class="p-2">HTTP 200 returned on errors</td><td class="p-2">Almost Certain</td><td class="p-2">Major</td><td class="p-2 font-mono text-xs">ApiExceptionHandler.java:48,98</td><td class="p-2">Map proper status codes</td></tr>
+<tr class="border-t bg-red-50 dark:bg-red-900/30"><td class="p-2">3</td><td class="p-2">Synchronous PDF blocks throughput</td><td class="p-2">Almost Certain</td><td class="p-2">Major</td><td class="p-2 font-mono text-xs">PDFCardServiceImpl.java:342</td><td class="p-2">Async worker + queue</td></tr>
+<tr class="border-t bg-red-50 dark:bg-red-900/30"><td class="p-2">4</td><td class="p-2">Low test coverage</td><td class="p-2">Almost Certain</td><td class="p-2">Major</td><td class="p-2 font-mono text-xs">no test for DigitalCardServiceImpl</td><td class="p-2">Coverage gate ≥80%</td></tr>
+<tr class="border-t bg-orange-50 dark:bg-orange-900/30"><td class="p-2">5</td><td class="p-2">Exception swallowing in callbacks</td><td class="p-2">Likely</td><td class="p-2">Major</td><td class="p-2 font-mono text-xs">controller:56,71,92</td><td class="p-2">Re-throw or DLQ</td></tr>
+<tr class="border-t bg-orange-50 dark:bg-orange-900/30"><td class="p-2">6</td><td class="p-2">Sensitive data in logs (DB user)</td><td class="p-2">Likely</td><td class="p-2">Major</td><td class="p-2 font-mono text-xs">controller:93</td><td class="p-2">Remove log; PII filter</td></tr>
+<tr class="border-t bg-orange-50 dark:bg-orange-900/30"><td class="p-2">7</td><td class="p-2">No caching → upstream pressure</td><td class="p-2">Almost Certain</td><td class="p-2">Moderate</td><td class="p-2 font-mono text-xs">no @EnableCaching</td><td class="p-2">Caffeine + Redis L2</td></tr>
+<tr class="border-t bg-orange-50 dark:bg-orange-900/30"><td class="p-2">8</td><td class="p-2">No distributed tracing</td><td class="p-2">Possible</td><td class="p-2">Major</td><td class="p-2 font-mono text-xs">no OTel deps</td><td class="p-2">OpenTelemetry agent</td></tr>
+<tr class="border-t bg-yellow-50 dark:bg-yellow-900/30"><td class="p-2">9</td><td class="p-2">Small thread pool (5)</td><td class="p-2">Almost Certain</td><td class="p-2">Moderate</td><td class="p-2 font-mono text-xs">DigitalCardApplication.java:29</td><td class="p-2">Tune; separate executor</td></tr>
+<tr class="border-t bg-yellow-50 dark:bg-yellow-900/30"><td class="p-2">10</td><td class="p-2">No HPA</td><td class="p-2">Possible</td><td class="p-2">Moderate</td><td class="p-2 font-mono text-xs">no hpa.yaml in helm/</td><td class="p-2">Add HPA template</td></tr>
+</tbody></table>
+
+<p class="mt-6"><a class="text-blue-600 hover:underline" href="../evidences/security-analysis.html">← evidence: security</a> | <a class="text-blue-600 hover:underline" href="../evidences/performance-profile.html">← evidence: performance</a> | <a class="text-blue-600 hover:underline" href="../strategy/modernization-strategy.html">→ Strategy roadmap</a></p>
+<footer class="mt-12 border-t pt-4 text-sm text-gray-500">Generated 2026-05-12</footer>
+</main></body></html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Business Capability Synthesis</title><script src="https://cdn.tailwindcss.com"></script><script>tailwind.config={darkMode:'class'}</script></head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+<header class="sticky top-0 z-10 bg-white dark:bg-gray-800 shadow px-4 py-3 flex justify-between items-center border-b dark:border-gray-700">
+<div><a href="../README.md" class="text-blue-600 hover:underline">← Index</a> <span class="ml-3 text-sm text-gray-500">Pattern</span> <span class="ml-3 font-bold">business-capability-synthesis.html</span></div>
+<button onclick="document.documentElement.classList.toggle('dark')" class="px-3 py-1 border rounded">🌓</button></header>
+<main class="max-w-6xl mx-auto p-6">
+<h1 class="text-3xl font-bold mb-4">Business Capability Synthesis</h1>
+<section class="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 p-4 mb-6 rounded"><b>TL;DR</b>
+<ul class="list-disc list-inside text-sm mt-2 space-y-1">
+<li>5 business capabilities map to credential lifecycle: Initiation, Verification, Card Generation, Status Tracking, Notification.</li>
+<li>Capability owner is a single Spring service — high coupling risk.</li>
+<li>"Revocation" capability is implicit (status update only); no dedicated workflow.</li>
+</ul></section>
+
+<table class="w-full text-sm border">
+<thead class="bg-gray-200 dark:bg-gray-700"><tr><th class="p-2">Capability</th><th class="p-2">Pattern Statement</th><th class="p-2">Evidence Trail</th><th class="p-2">Strategy Link</th></tr></thead>
+<tbody>
+<tr class="border-t"><td class="p-2 font-semibold">Credential Initiation</td><td class="p-2">Subscribe to identity create/update; request credential.</td><td class="p-2 font-mono text-xs"><a class="text-blue-600 hover:underline" href="../evidences/codebase-structure.html">controller.java:47,62</a>; DigitalCardServiceImpl.java:183</td><td class="p-2"><a class="text-blue-600 hover:underline" href="../strategy/modernization-strategy.html">Phase 2</a></td></tr>
+<tr class="border-t"><td class="p-2 font-semibold">VC Verification</td><td class="p-2">Optional verification via CredentialsVerifier.</td><td class="p-2 font-mono text-xs">DigitalCardServiceImpl.java:127</td><td class="p-2"><a class="text-blue-600 hover:underline" href="../strategy/modernization-strategy.html">Phase 4</a></td></tr>
+<tr class="border-t"><td class="p-2 font-semibold">PDF Card Generation</td><td class="p-2">Template + photo + QR + sign.</td><td class="p-2 font-mono text-xs">PDFCardServiceImpl.java:146-213</td><td class="p-2"><a class="text-blue-600 hover:underline" href="../patterns/scalability-blueprint.html">Async pattern</a></td></tr>
+<tr class="border-t"><td class="p-2 font-semibold">Status Tracking</td><td class="p-2">JPA-backed transaction state machine.</td><td class="p-2 font-mono text-xs">DigitalCardServiceImpl.java:210-227; entity/DigitalCardTransactionEntity.java</td><td class="p-2"><a class="text-blue-600 hover:underline" href="../strategy/decision-records.html">ADR-002</a></td></tr>
+<tr class="border-t"><td class="p-2 font-semibold">Notification (event publish)</td><td class="p-2">Publish CredentialStatusEvent → WebSub.</td><td class="p-2 font-mono text-xs">DigitalCardServiceImpl.java:228-239</td><td class="p-2"><a class="text-blue-600 hover:underline" href="../patterns/observability-strategy.html">Observability</a></td></tr>
+</tbody></table>
+
+<h2 class="text-xl font-bold mt-6 mb-2">Trade-offs</h2>
+<p class="text-sm">Co-locating 5 capabilities in one service simplifies deployment but risks single-point bottleneck. Splitting "Card Generation" into a worker yields the largest scalability gain (10×).</p>
+
+<p class="mt-6">
+<a class="text-blue-600 hover:underline" href="../evidences/codebase-structure.html">← Driven by evidence: codebase-structure</a> |
+<a class="text-blue-600 hover:underline" href="../strategy/architectural-assessment.html">→ Strategy: architectural-assessment</a>
+</p>
+<footer class="mt-12 border-t pt-4 text-sm text-gray-500">Generated 2026-05-12</footer>
+</main></body></html>

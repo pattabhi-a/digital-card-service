@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 560" font-family="system-ui,sans-serif" font-size="12">
+<defs>
+<marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#444"/></marker>
+</defs>
+<rect width="900" height="560" fill="#fafafa"/>
+<text x="450" y="24" text-anchor="middle" font-size="18" font-weight="bold">C4 Context — Digital Card Service Context</text>
+
+<!-- People -->
+<g>
+<rect x="30" y="80" width="140" height="60" rx="6" fill="#08427b" stroke="#073a6f"/>
+<text x="100" y="105" fill="white" text-anchor="middle" font-weight="bold">Citizen</text>
+<text x="100" y="124" fill="#cfd9e8" text-anchor="middle" font-size="10">requests card</text>
+</g>
+<g>
+<rect x="30" y="180" width="140" height="60" rx="6" fill="#08427b" stroke="#073a6f"/>
+<text x="100" y="205" fill="white" text-anchor="middle" font-weight="bold">Reg. Officer</text>
+<text x="100" y="224" fill="#cfd9e8" text-anchor="middle" font-size="10">enrols identity</text>
+</g>
+<g>
+<rect x="30" y="280" width="140" height="60" rx="6" fill="#08427b" stroke="#073a6f"/>
+<text x="100" y="305" fill="white" text-anchor="middle" font-weight="bold">Card Verifier</text>
+<text x="100" y="324" fill="#cfd9e8" text-anchor="middle" font-size="10">scans QR</text>
+</g>
+
+<!-- Center -->
+<g>
+<rect x="350" y="220" width="200" height="100" rx="8" fill="#1168bd" stroke="#0b4f8f"/>
+<text x="450" y="252" fill="white" text-anchor="middle" font-weight="bold">Digital Card Service</text>
+<text x="450" y="272" fill="#dde9f7" text-anchor="middle" font-size="10">Spring Boot 3.2.3</text>
+<text x="450" y="290" fill="#dde9f7" text-anchor="middle" font-size="10">PDF generation + WebSub</text>
+</g>
+
+<!-- External systems -->
+<g>
+<rect x="710" y="60" width="160" height="50" rx="6" fill="#999" stroke="#666"/>
+<text x="790" y="80" fill="white" text-anchor="middle" font-weight="bold">Reg. Processor</text>
+<text x="790" y="98" fill="#eee" text-anchor="middle" font-size="10">[external system]</text>
+</g>
+<g>
+<rect x="710" y="130" width="160" height="50" rx="6" fill="#999" stroke="#666"/>
+<text x="790" y="150" fill="white" text-anchor="middle" font-weight="bold">Credential Service</text>
+<text x="790" y="168" fill="#eee" text-anchor="middle" font-size="10">[external system]</text>
+</g>
+<g>
+<rect x="710" y="200" width="160" height="50" rx="6" fill="#999" stroke="#666"/>
+<text x="790" y="220" fill="white" text-anchor="middle" font-weight="bold">KeyManager</text>
+<text x="790" y="238" fill="#eee" text-anchor="middle" font-size="10">[external system]</text>
+</g>
+<g>
+<rect x="710" y="270" width="160" height="50" rx="6" fill="#999" stroke="#666"/>
+<text x="790" y="290" fill="white" text-anchor="middle" font-weight="bold">DataShare</text>
+<text x="790" y="308" fill="#eee" text-anchor="middle" font-size="10">[external system]</text>
+</g>
+<g>
+<rect x="710" y="340" width="160" height="50" rx="6" fill="#999" stroke="#666"/>
+<text x="790" y="360" fill="white" text-anchor="middle" font-weight="bold">PDF Signer</text>
+<text x="790" y="378" fill="#eee" text-anchor="middle" font-size="10">[external system]</text>
+</g>
+<g>
+<rect x="710" y="410" width="160" height="50" rx="6" fill="#999" stroke="#666"/>
+<text x="790" y="430" fill="white" text-anchor="middle" font-weight="bold">WebSub Hub</text>
+<text x="790" y="448" fill="#eee" text-anchor="middle" font-size="10">[external system]</text>
+</g>
+
+<!-- Arrows from people -->
+<line x1="170" y1="110" x2="350" y2="240" stroke="#444" marker-end="url(#arr)"/>
+<line x1="170" y1="210" x2="350" y2="260" stroke="#444" marker-end="url(#arr)"/>
+<line x1="170" y1="310" x2="350" y2="290" stroke="#444" marker-end="url(#arr)"/>
+
+<!-- Arrows to externals -->
+<line x1="550" y1="240" x2="710" y2="85" stroke="#444" marker-end="url(#arr)"/>
+<line x1="550" y1="250" x2="710" y2="155" stroke="#444" marker-end="url(#arr)"/>
+<line x1="550" y1="265" x2="710" y2="225" stroke="#444" marker-end="url(#arr)"/>
+<line x1="550" y1="280" x2="710" y2="295" stroke="#444" marker-end="url(#arr)"/>
+<line x1="550" y1="295" x2="710" y2="365" stroke="#444" marker-end="url(#arr)"/>
+<line x1="550" y1="310" x2="710" y2="435" stroke="#444" marker-end="url(#arr)"/>
+
+<!-- Legend -->
+<g transform="translate(30,470)">
+<text font-weight="bold" font-size="11">Legend</text>
+<rect x="0" y="10" width="20" height="15" fill="#08427b"/><text x="28" y="22" font-size="10">Person</text>
+<rect x="90" y="10" width="20" height="15" fill="#1168bd"/><text x="118" y="22" font-size="10">In-scope system</text>
+<rect x="220" y="10" width="20" height="15" fill="#999"/><text x="248" y="22" font-size="10">External system</text>
+</g>
+</svg>

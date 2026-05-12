@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Observability Strategy</title><script src="https://cdn.tailwindcss.com"></script><script>tailwind.config={darkMode:'class'}</script></head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+<header class="sticky top-0 z-10 bg-white dark:bg-gray-800 shadow px-4 py-3 flex justify-between items-center border-b dark:border-gray-700">
+<div><a href="../README.md" class="text-blue-600 hover:underline">← Index</a> <span class="ml-3 text-sm text-gray-500">Pattern</span> <span class="ml-3 font-bold">observability-strategy.html</span></div>
+<button onclick="document.documentElement.classList.toggle('dark')" class="px-3 py-1 border rounded">🌓</button></header>
+<main class="max-w-6xl mx-auto p-6">
+<h1 class="text-3xl font-bold mb-4">Observability Strategy</h1>
+<section class="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 p-4 mb-6 rounded"><b>TL;DR</b>
+<ul class="list-disc list-inside text-sm mt-2 space-y-1">
+<li>Logs: text via SLF4J, no JSON structure, sensitive context leaks (controller:93).</li>
+<li>Metrics: ServiceMonitor template exists (helm/digitalcard/templates/servicemonitor.yaml) — Prometheus-ready but no custom counters defined in code.</li>
+<li>Tracing: none (no OpenTelemetry / Sleuth / Brave imports).</li>
+<li>Alerting: not defined in helm.</li>
+</ul></section>
+
+<img src="../diagrams/credential-lifecycle-flow.svg" alt="Lifecycle flow" class="mx-auto border bg-white p-2 rounded my-4 max-w-full"/>
+
+<h2 class="text-xl font-bold mt-6 mb-2">Three Pillars</h2>
+<table class="w-full text-sm border">
+<thead class="bg-gray-200 dark:bg-gray-700"><tr><th class="p-2">Pillar</th><th class="p-2">Current</th><th class="p-2">Target</th><th class="p-2">Notes</th></tr></thead>
+<tbody>
+<tr class="border-t"><td class="p-2">Logging</td><td class="p-2">SLF4J text, broken placeholders (DigitalCardServiceImpl:147 "{}+e")</td><td class="p-2">JSON, MDC with rid+correlationId</td><td class="p-2">PII filter mandatory</td></tr>
+<tr class="border-t"><td class="p-2">Metrics</td><td class="p-2">Actuator basics</td><td class="p-2">Custom: cards.generated, pdf.duration.histogram, websub.subscribe.failures</td><td class="p-2">Micrometer + Prometheus</td></tr>
+<tr class="border-t"><td class="p-2">Tracing</td><td class="p-2">None</td><td class="p-2">OpenTelemetry agent → Jaeger/Tempo</td><td class="p-2">Trace WebSub → decrypt → PDF → sign → publish</td></tr>
+<tr class="border-t"><td class="p-2">Alerting</td><td class="p-2">None</td><td class="p-2">SLO-based: error-rate > 1%, p99 latency > 500ms</td><td class="p-2">Wire to PagerDuty</td></tr>
+</tbody></table>
+
+<h2 class="text-xl font-bold mt-6 mb-2">Instrumentation Points (cited)</h2>
+<ul class="list-disc list-inside text-sm">
+<li>Controller entry: DigitalCardController.java:50, 65, 80, 102 — start trace span, MDC put.</li>
+<li>Decrypt: EncryptionUtil.java:84 — measure latency.</li>
+<li>PDF generate: PDFCardServiceImpl.java:146-213 — counter + histogram.</li>
+<li>Status update: DigitalCardServiceImpl.java:210-240 — metric for each transition.</li>
+<li>Re-subscription: DigitalCardInitializer.java:88-101 — counter for failures.</li>
+</ul>
+
+<p class="mt-6"><a class="text-blue-600 hover:underline" href="../evidences/nfr-baseline.html">← NFR baseline</a></p>
+<footer class="mt-12 border-t pt-4 text-sm text-gray-500">Generated 2026-05-12</footer>
+</main></body></html>

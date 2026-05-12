@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Architecture Patterns</title><script src="https://cdn.tailwindcss.com"></script><script>tailwind.config={darkMode:'class'}</script></head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+<header class="sticky top-0 z-10 bg-white dark:bg-gray-800 shadow px-4 py-3 flex justify-between items-center border-b dark:border-gray-700">
+<div><a href="../README.md" class="text-blue-600 hover:underline">← Index</a> <span class="ml-3 text-sm text-gray-500">Evidence</span> <span class="ml-3 font-bold">architecture-patterns.html</span></div>
+<button onclick="document.documentElement.classList.toggle('dark')" class="px-3 py-1 border rounded">🌓</button></header>
+<main class="max-w-6xl mx-auto p-6">
+<h1 class="text-3xl font-bold mb-4">Architecture Patterns</h1>
+<section class="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 p-4 mb-6 rounded"><b>TL;DR</b>
+<ul class="list-disc list-inside text-sm mt-2 space-y-1">
+<li>Hybrid: Layered (controller→service→repository) + Event-driven inbound (WebSub).</li>
+<li>Adapter pattern via util/* wrappers (DataShareUtil, EncryptionUtil, CredentialUtil).</li>
+<li>DTO pattern (23 DTOs) but anaemic — pure data carriers.</li>
+<li>Anti-pattern: catch-and-200 in controller advice.</li>
+<li>Anti-pattern: God-service (DigitalCardServiceImpl orchestrates 9 collaborators).</li>
+</ul></section>
+
+<table class="w-full text-sm border">
+<thead class="bg-gray-200 dark:bg-gray-700"><tr><th class="p-2">Pattern</th><th class="p-2">Description</th><th class="p-2">Evidence</th><th class="p-2">Assessment</th></tr></thead>
+<tbody>
+<tr class="border-t"><td class="p-2">Layered Architecture</td><td class="p-2">controller→service→repository</td><td class="p-2 font-mono text-xs">DigitalCardController.java:33; DigitalCardServiceImpl.java:47; DigitalCardTransactionRepository.java</td><td class="p-2"><span class="bg-green-100 text-green-800 px-2 rounded text-xs">Good</span></td></tr>
+<tr class="border-t"><td class="p-2">Event-Driven (WebSub)</td><td class="p-2">Inbound webhooks for credential lifecycle</td><td class="p-2 font-mono text-xs">DigitalCardController.java:47,62,77; DigitalCardInitializer.java:88-101</td><td class="p-2"><span class="bg-green-100 text-green-800 px-2 rounded text-xs">Good</span></td></tr>
+<tr class="border-t"><td class="p-2">Adapter Pattern</td><td class="p-2">Util classes wrap MOSIP kernel/external APIs</td><td class="p-2 font-mono text-xs">EncryptionUtil.java:29; DataShareUtil.java; CredentialUtil.java</td><td class="p-2"><span class="bg-green-100 text-green-800 px-2 rounded text-xs">Good</span></td></tr>
+<tr class="border-t"><td class="p-2">Strategy via interface</td><td class="p-2">CardGeneratorService → PDFCardServiceImpl (extensible to other formats)</td><td class="p-2 font-mono text-xs">service/CardGeneratorService.java; PDFCardServiceImpl.java:48</td><td class="p-2"><span class="bg-green-100 text-green-800 px-2 rounded text-xs">Good</span></td></tr>
+<tr class="border-t"><td class="p-2">DTO Pattern</td><td class="p-2">Boundary marshalling</td><td class="p-2 font-mono text-xs">23 classes in dto/</td><td class="p-2"><span class="bg-yellow-100 text-yellow-800 px-2 rounded text-xs">Acceptable</span></td></tr>
+<tr class="border-t"><td class="p-2">Exception Hierarchy</td><td class="p-2">10 typed exceptions; centralized advice</td><td class="p-2 font-mono text-xs">exception/*; ApiExceptionHandler.java:38</td><td class="p-2"><span class="bg-yellow-100 text-yellow-800 px-2 rounded text-xs">Acceptable</span> (but maps all to 200)</td></tr>
+<tr class="border-t"><td class="p-2">Anti: Swallow-and-OK</td><td class="p-2">Catch Exception, return HTTP 200</td><td class="p-2 font-mono text-xs">DigitalCardController.java:56,71,92; ApiExceptionHandler.java:48,98</td><td class="p-2"><span class="bg-red-100 text-red-800 px-2 rounded text-xs">Bad</span></td></tr>
+<tr class="border-t"><td class="p-2">Anti: God Service</td><td class="p-2">DigitalCardServiceImpl orchestrates 9 collaborators, mixes parsing+persistence+publishing</td><td class="p-2 font-mono text-xs">DigitalCardServiceImpl.java:50-74,112-240</td><td class="p-2"><span class="bg-red-100 text-red-800 px-2 rounded text-xs">Bad</span></td></tr>
+<tr class="border-t"><td class="p-2">Anti: Anaemic Domain</td><td class="p-2">Single entity has only setters/getters</td><td class="p-2 font-mono text-xs">entity/DigitalCardTransactionEntity.java</td><td class="p-2"><span class="bg-red-100 text-red-800 px-2 rounded text-xs">Bad</span></td></tr>
+</tbody></table>
+
+<p class="mt-6"><a class="text-blue-600 hover:underline" href="../patterns/technical-patterns-synthesis.html">→ Pattern synthesis</a></p>
+<footer class="mt-12 border-t pt-4 text-sm text-gray-500">Generated 2026-05-12 · branch <code>feat/hai-analysis-reports</code></footer>
+</main></body></html>

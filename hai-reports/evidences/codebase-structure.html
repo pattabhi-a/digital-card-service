@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Codebase Structure | Digital Card Service</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={darkMode:'class'}</script>
+<style>body{font-family:system-ui,sans-serif}details>summary{list-style:none;cursor:pointer}details>summary::before{content:'▶ ';font-size:.7em}details[open]>summary::before{content:'▼ '}</style>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+<header class="sticky top-0 z-10 bg-white dark:bg-gray-800 shadow px-4 py-3 flex justify-between items-center border-b dark:border-gray-700">
+  <div><a href="../README.md" class="text-blue-600 hover:underline">← Index</a> <span class="ml-3 text-sm text-gray-500">Evidence</span> <span class="ml-3 font-bold">codebase-structure.html</span></div>
+  <button onclick="document.documentElement.classList.toggle('dark');localStorage.theme=document.documentElement.classList.contains('dark')?'dark':'light'" class="px-3 py-1 border rounded">🌓</button>
+</header>
+<script>if(localStorage.theme==='dark')document.documentElement.classList.add('dark')</script>
+<main class="max-w-6xl mx-auto p-6">
+<h1 class="text-3xl font-bold mb-4">Codebase Structure</h1>
+
+<section class="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 p-4 mb-6 rounded">
+<h2 class="font-bold text-lg mb-2">TL;DR</h2>
+<ul class="list-disc list-inside text-sm space-y-1">
+<li>Spring Boot 3.2.3 monolith, 79 Java files, ~1800 LOC across the hot path (controller + 2 services + utils).</li>
+<li>Single REST controller (5 endpoints), 2 service interfaces, single JPA entity (DigitalCardTransactionEntity).</li>
+<li>Largest classes: <code>PDFCardServiceImpl</code> (383 LOC), <code>DigitalCardServiceImpl</code> (323 LOC), <code>RestClient</code> (209 LOC).</li>
+<li>WebSub package (5 classes) implements the publish/subscribe contract.</li>
+<li>23 DTOs, 10 exception classes, 8 utilities.</li>
+</ul>
+</section>
+
+<h2 class="text-2xl font-bold mt-8 mb-3">Methodology</h2>
+<p class="mb-4">Counted via <code>find src/main/java -name "*.java"</code> and <code>wc -l</code>. Verified package layout and read all 4 hot-path files end-to-end (controller, both service impls, EncryptionUtil). Cross-checked against ApiExceptionHandler.</p>
+
+<h2 class="text-2xl font-bold mt-8 mb-3">C4 Level 1 — System Context</h2>
+<img src="../diagrams/c4-context-diagram.svg" class="mx-auto border bg-white p-2 rounded max-w-full" alt="C4 context"/>
+
+<h2 class="text-2xl font-bold mt-8 mb-3">Component Inventory</h2>
+<table class="w-full text-sm border" id="inv">
+<thead class="bg-gray-200 dark:bg-gray-700"><tr><th class="p-2 text-left">Component</th><th class="p-2 text-left">Count</th><th class="p-2 text-left">Path</th></tr></thead>
+<tbody>
+<tr class="border-t"><td class="p-2">Controllers</td><td class="p-2">1</td><td class="p-2"><code>controller/</code></td></tr>
+<tr class="border-t"><td class="p-2">Service interfaces</td><td class="p-2">2</td><td class="p-2"><code>service/</code> (DigitalCardService, CardGeneratorService)</td></tr>
+<tr class="border-t"><td class="p-2">Service implementations</td><td class="p-2">2</td><td class="p-2"><code>service/impl/</code> (DigitalCardServiceImpl, PDFCardServiceImpl)</td></tr>
+<tr class="border-t"><td class="p-2">Utilities</td><td class="p-2">8</td><td class="p-2"><code>util/</code></td></tr>
+<tr class="border-t"><td class="p-2">DTOs</td><td class="p-2">23</td><td class="p-2"><code>dto/</code></td></tr>
+<tr class="border-t"><td class="p-2">Exceptions</td><td class="p-2">10</td><td class="p-2"><code>exception/</code></td></tr>
+<tr class="border-t"><td class="p-2">WebSub events &amp; helpers</td><td class="p-2">5</td><td class="p-2"><code>websub/</code></td></tr>
+<tr class="border-t"><td class="p-2">JPA entities</td><td class="p-2">1</td><td class="p-2"><code>entity/DigitalCardTransactionEntity.java</code></td></tr>
+<tr class="border-t"><td class="p-2">Repositories</td><td class="p-2">1</td><td class="p-2"><code>repositories/DigitalCardTransactionRepository.java</code></td></tr>
+<tr class="border-t"><td class="p-2">Config classes</td><td class="p-2">3</td><td class="p-2"><code>config/</code> (SwaggerConfig, OpenApiProperties, SchedulingConfigurerConfiguration)</td></tr>
+</tbody>
+</table>
+
+<h2 class="text-2xl font-bold mt-8 mb-3">Largest Classes by LOC</h2>
+<table class="w-full text-sm border">
+<thead class="bg-gray-200 dark:bg-gray-700"><tr><th class="p-2 text-left">Class</th><th class="p-2 text-left">LOC</th><th class="p-2 text-left">Declared at</th></tr></thead>
+<tbody>
+<tr class="border-t"><td class="p-2">PDFCardServiceImpl</td><td class="p-2 font-mono">383</td><td class="p-2"><code>src/main/java/io/mosip/digitalcard/service/impl/PDFCardServiceImpl.java:48</code></td></tr>
+<tr class="border-t"><td class="p-2">DigitalCardServiceImpl</td><td class="p-2 font-mono">323</td><td class="p-2"><code>src/main/java/io/mosip/digitalcard/service/impl/DigitalCardServiceImpl.java:47</code></td></tr>
+<tr class="border-t"><td class="p-2">RestClient</td><td class="p-2 font-mono">209</td><td class="p-2"><code>src/main/java/io/mosip/digitalcard/util/RestClient.java</code></td></tr>
+<tr class="border-t"><td class="p-2">Utility</td><td class="p-2 font-mono">199</td><td class="p-2"><code>src/main/java/io/mosip/digitalcard/util/Utility.java</code></td></tr>
+<tr class="border-t"><td class="p-2">CbeffToBiometricUtil</td><td class="p-2 font-mono">134</td><td class="p-2"><code>src/main/java/io/mosip/digitalcard/util/CbeffToBiometricUtil.java</code></td></tr>
+<tr class="border-t"><td class="p-2">TemplateGenerator</td><td class="p-2 font-mono">126</td><td class="p-2"><code>src/main/java/io/mosip/digitalcard/util/TemplateGenerator.java</code></td></tr>
+<tr class="border-t"><td class="p-2">EncryptionUtil</td><td class="p-2 font-mono">123</td><td class="p-2"><code>src/main/java/io/mosip/digitalcard/util/EncryptionUtil.java</code></td></tr>
+<tr class="border-t"><td class="p-2">DigitalCardController</td><td class="p-2 font-mono">108</td><td class="p-2"><code>src/main/java/io/mosip/digitalcard/controller/DigitalCardController.java:33</code></td></tr>
+</tbody>
+</table>
+
+<h2 class="text-2xl font-bold mt-8 mb-3">Package Fan-out (DigitalCardServiceImpl)</h2>
+<details class="bg-white dark:bg-gray-800 border rounded p-3 mb-4">
+<summary class="font-semibold">Show 9 collaborators injected</summary>
+<pre class="bg-gray-100 dark:bg-gray-900 p-2 mt-2 text-xs overflow-x-auto"><code>@Autowired CardGeneratorService pdfCardServiceImpl;     // line 50
+@Autowired CredentialUtil credentialUtil;               // line 53
+@Autowired Utility utility;                             // line 56
+@Autowired RestClient restClient;                       // line 59
+@Autowired EncryptionUtil encryptionUtil;               // line 62
+@Autowired CredentialsVerifier credentialsVerifier;     // line 65
+@Autowired DataShareUtil dataShareUtil;                 // line 68
+@Autowired WebSubSubscriptionHelper webSubSubscriptionHelper; // line 71
+@Autowired DigitalCardTransactionRepository ...;        // line 74</code></pre>
+</details>
+
+<h2 class="text-2xl font-bold mt-8 mb-3">REST Endpoints (controller surface)</h2>
+<table class="w-full text-sm border">
+<thead class="bg-gray-200 dark:bg-gray-700"><tr><th class="p-2 text-left">Method</th><th class="p-2 text-left">Path</th><th class="p-2 text-left">Line</th></tr></thead>
+<tbody>
+<tr class="border-t"><td class="p-2">POST</td><td class="p-2">/idCreateEventHandle/callback/notifyStatus</td><td class="p-2">DigitalCardController.java:47</td></tr>
+<tr class="border-t"><td class="p-2">POST</td><td class="p-2">/idUpdateEventHandle/callback/notifyStatus</td><td class="p-2">DigitalCardController.java:62</td></tr>
+<tr class="border-t"><td class="p-2">POST</td><td class="p-2">/credential/callback/notifyStatus</td><td class="p-2">DigitalCardController.java:77</td></tr>
+<tr class="border-t"><td class="p-2">GET</td><td class="p-2">/{rid}</td><td class="p-2">DigitalCardController.java:100</td></tr>
+</tbody>
+</table>
+<p class="text-sm mt-2 text-gray-600 dark:text-gray-400">Note: prior docs cite "5 endpoints"; only 4 are present. <span class="bg-yellow-100 text-yellow-800 px-2 rounded">Discrepancy noted.</span></p>
+
+<h2 class="text-2xl font-bold mt-8 mb-3">Cross-references</h2>
+<ul class="list-disc list-inside">
+<li><a class="text-blue-600 hover:underline" href="../patterns/technical-patterns-synthesis.html">→ Pattern: technical-patterns-synthesis</a></li>
+<li><a class="text-blue-600 hover:underline" href="../patterns/business-capability-synthesis.html">→ Pattern: business-capability-synthesis</a></li>
+</ul>
+
+<footer class="mt-12 border-t pt-4 text-sm text-gray-500"><p><b>How to use:</b> Use this artifact as the ground-truth inventory; every other report cites back to these files. Generated 2026-05-12 on branch <code>feat/hai-analysis-reports</code>.</p></footer>
+</main></body></html>

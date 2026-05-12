@@ -162,9 +162,9 @@ Reference skills from `hai-domain-configs/blueprints/coordinator/skills/`:
 **Approach**: Option B (fresh code analysis with generic skills)
 
 **Output**: `hai-reports/` directory with:
-- **evidences/** (L3 - Atoms): Detailed findings from code analysis
-- **patterns/** (L2 - Molecules): Synthesis + patterns from findings
-- **strategy/** (L1 - Organism): Strategic recommendations + decision records
+- **evidences/**: Detailed findings from code analysis
+- **patterns/**: Synthesis + patterns from findings
+- **strategy/**: Strategic recommendations + decision records
 
 **Deliverables**:
 - 7 HTML evidence files (C4 diagrams, quality, security, performance, architecture, DDD, NFR)

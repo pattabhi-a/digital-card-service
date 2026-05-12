@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Modernization Patterns</title><script src="https://cdn.tailwindcss.com"></script><script>tailwind.config={darkMode:'class'}</script></head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+<header class="sticky top-0 z-10 bg-white dark:bg-gray-800 shadow px-4 py-3 flex justify-between items-center border-b dark:border-gray-700">
+<div><a href="../README.md" class="text-blue-600 hover:underline">← Index</a> <span class="ml-3 text-sm text-gray-500">Pattern</span> <span class="ml-3 font-bold">modernization-patterns.html</span></div>
+<button onclick="document.documentElement.classList.toggle('dark')" class="px-3 py-1 border rounded">🌓</button></header>
+<main class="max-w-6xl mx-auto p-6">
+<h1 class="text-3xl font-bold mb-4">Modernization Patterns</h1>
+<section class="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 p-4 mb-6 rounded"><b>TL;DR</b>
+<p class="text-sm mt-2">Five high-leverage patterns: Async PDF, Distributed Cache, Vault Secrets, OpenTelemetry, Circuit Breakers. All map to Phase 0–4 in the roadmap.</p></section>
+
+<table class="w-full text-sm border">
+<thead class="bg-gray-200 dark:bg-gray-700"><tr><th class="p-2">Pattern</th><th class="p-2">Problem (cited)</th><th class="p-2">Benefits</th><th class="p-2">Trade-offs</th><th class="p-2">Strategy Phase</th></tr></thead>
+<tbody>
+<tr class="border-t"><td class="p-2 font-semibold">Async PDF Worker</td><td class="p-2 text-xs">Sync pipeline at <code>PDFCardServiceImpl.java:342</code></td><td class="p-2">10× throughput; isolates failure</td><td class="p-2">Adds queue infra</td><td class="p-2"><a class="text-blue-600 hover:underline" href="../strategy/modernization-strategy.html">P2</a></td></tr>
+<tr class="border-t"><td class="p-2 font-semibold">Distributed Cache (Redis)</td><td class="p-2 text-xs">Identity mapping JSON re-fetched per card (<code>PDFCardServiceImpl.java:293</code>)</td><td class="p-2">Reduces upstream load</td><td class="p-2">Cache invalidation strategy</td><td class="p-2"><a class="text-blue-600 hover:underline" href="../strategy/modernization-strategy.html">P1</a></td></tr>
+<tr class="border-t"><td class="p-2 font-semibold">Secrets via Vault</td><td class="p-2 text-xs">Plaintext in <code>application-local1.properties:4,25,54</code></td><td class="p-2">Rotation; audit</td><td class="p-2">Vault dependency</td><td class="p-2"><a class="text-blue-600 hover:underline" href="../strategy/modernization-strategy.html">P0</a></td></tr>
+<tr class="border-t"><td class="p-2 font-semibold">OpenTelemetry tracing</td><td class="p-2 text-xs">No tracing instrumentation in source tree</td><td class="p-2">End-to-end visibility</td><td class="p-2">Sampling overhead</td><td class="p-2"><a class="text-blue-600 hover:underline" href="../strategy/modernization-strategy.html">P3</a></td></tr>
+<tr class="border-t"><td class="p-2 font-semibold">Resilience4j circuit breaker</td><td class="p-2 text-xs">RestClient calls with no breaker (EncryptionUtil:84, PDFCardServiceImpl:360)</td><td class="p-2">Failure isolation</td><td class="p-2">Tuning thresholds</td><td class="p-2"><a class="text-blue-600 hover:underline" href="../strategy/modernization-strategy.html">P1</a></td></tr>
+<tr class="border-t"><td class="p-2 font-semibold">Outbox + Saga</td><td class="p-2 text-xs">Status update + WebSub publish in same TX (DigitalCardServiceImpl:224-238)</td><td class="p-2">Atomic event delivery</td><td class="p-2">Polling cost</td><td class="p-2"><a class="text-blue-600 hover:underline" href="../strategy/modernization-strategy.html">P2</a></td></tr>
+</tbody></table>
+
+<p class="mt-6"><a class="text-blue-600 hover:underline" href="../evidences/performance-profile.html">← perf evidence</a> | <a class="text-blue-600 hover:underline" href="../evidences/security-analysis.html">← security evidence</a></p>
+<footer class="mt-12 border-t pt-4 text-sm text-gray-500">Generated 2026-05-12</footer>
+</main></body></html>

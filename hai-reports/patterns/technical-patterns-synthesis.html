@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Technical Patterns Synthesis</title><script src="https://cdn.tailwindcss.com"></script><script>tailwind.config={darkMode:'class'}</script></head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+<header class="sticky top-0 z-10 bg-white dark:bg-gray-800 shadow px-4 py-3 flex justify-between items-center border-b dark:border-gray-700">
+<div><a href="../README.md" class="text-blue-600 hover:underline">← Index</a> <span class="ml-3 text-sm text-gray-500">Pattern</span> <span class="ml-3 font-bold">technical-patterns-synthesis.html</span></div>
+<button onclick="document.documentElement.classList.toggle('dark')" class="px-3 py-1 border rounded">🌓</button></header>
+<main class="max-w-6xl mx-auto p-6">
+<h1 class="text-3xl font-bold mb-4">Technical Patterns Synthesis</h1>
+<section class="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 p-4 mb-6 rounded"><b>TL;DR</b>
+<ul class="list-disc list-inside text-sm mt-2 space-y-1">
+<li>The hybrid layered+event-driven shape is appropriate for this domain.</li>
+<li>Three issues dominate: error handling, async absence, secret management.</li>
+<li>Refactor can be incremental — interface boundaries (CardGeneratorService) already in place.</li>
+</ul></section>
+
+<h2 class="text-xl font-bold mt-6 mb-2">Recurring Patterns</h2>
+<table class="w-full text-sm border">
+<thead class="bg-gray-200 dark:bg-gray-700"><tr><th class="p-2">Pattern</th><th class="p-2">Where</th><th class="p-2">Improvement</th></tr></thead>
+<tbody>
+<tr class="border-t"><td class="p-2">REST template per call</td><td class="p-2 font-mono text-xs">RestClient.java; EncryptionUtil.java:84; PDFCardServiceImpl.java:360</td><td class="p-2">Centralize WebClient with timeout, retry, circuit breaker.</td></tr>
+<tr class="border-t"><td class="p-2">Generic catch+log</td><td class="p-2 font-mono text-xs">DigitalCardServiceImpl.java:150; PDFCardServiceImpl.java:373</td><td class="p-2">Typed exceptions; mapped HTTP status.</td></tr>
+<tr class="border-t"><td class="p-2">String-built status</td><td class="p-2 font-mono text-xs">DigitalCardServiceImpl.java:206,223,231</td><td class="p-2">Enum + state-machine library.</td></tr>
+<tr class="border-t"><td class="p-2">@Value inflation</td><td class="p-2 font-mono text-xs">DigitalCardServiceImpl.java:79-107 (10 @Value fields)</td><td class="p-2">Group with @ConfigurationProperties.</td></tr>
+<tr class="border-t"><td class="p-2">Util-as-singleton with cross-cutting deps</td><td class="p-2 font-mono text-xs">EncryptionUtil.java:29</td><td class="p-2">Promote to dedicated service with explicit interface.</td></tr>
+</tbody></table>
+
+<h2 class="text-xl font-bold mt-6 mb-2">Trade-offs</h2>
+<p class="text-sm">Async PDF (queue + worker) requires re-thinking transaction boundaries — DigitalCardTransactionEntity becomes the saga. Adds operational complexity (broker) but unblocks 10× throughput.</p>
+
+<p class="mt-6">
+<a class="text-blue-600 hover:underline" href="../evidences/quality-findings.html">← Driven by: quality-findings</a> |
+<a class="text-blue-600 hover:underline" href="../evidences/architecture-patterns.html">← architecture-patterns</a> |
+<a class="text-blue-600 hover:underline" href="../strategy/modernization-strategy.html">→ Strategy</a>
+</p>
+<footer class="mt-12 border-t pt-4 text-sm text-gray-500">Generated 2026-05-12</footer>
+</main></body></html>

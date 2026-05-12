@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Success Metrics</title><script src="https://cdn.tailwindcss.com"></script><script>tailwind.config={darkMode:'class'}</script></head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+<header class="sticky top-0 z-10 bg-white dark:bg-gray-800 shadow px-4 py-3 flex justify-between items-center border-b dark:border-gray-700">
+<div><a href="../README.md" class="text-blue-600 hover:underline">← Index</a> <span class="ml-3 text-sm text-gray-500">Strategy</span> <span class="ml-3 font-bold">success-metrics.html</span></div>
+<button onclick="document.documentElement.classList.toggle('dark')" class="px-3 py-1 border rounded">🌓</button></header>
+<main class="max-w-6xl mx-auto p-6">
+<h1 class="text-3xl font-bold mb-4">Success Metrics</h1>
+
+<h2 class="text-xl font-bold mt-4 mb-2">KPI Dashboard</h2>
+<table class="w-full text-sm border">
+<thead class="bg-gray-200 dark:bg-gray-700"><tr><th class="p-2">KPI</th><th class="p-2">Current</th><th class="p-2">Target</th><th class="p-2">Phase</th></tr></thead>
+<tbody>
+<tr class="border-t"><td class="p-2">Throughput</td><td class="p-2">~30-50 cards/min</td><td class="p-2">300-500 cards/min</td><td class="p-2">P2</td></tr>
+<tr class="border-t"><td class="p-2">Latency p99</td><td class="p-2">2-5 s</td><td class="p-2">&lt; 500 ms</td><td class="p-2">P1+P2</td></tr>
+<tr class="border-t"><td class="p-2">Test coverage</td><td class="p-2">~0% on services</td><td class="p-2">≥ 80%</td><td class="p-2">P5</td></tr>
+<tr class="border-t"><td class="p-2">Security score</td><td class="p-2">4.3/10</td><td class="p-2">8.0/10</td><td class="p-2">P0+P4</td></tr>
+<tr class="border-t"><td class="p-2">Observability score</td><td class="p-2">5/10</td><td class="p-2">8.5/10</td><td class="p-2">P3</td></tr>
+<tr class="border-t"><td class="p-2">Error rate (5xx)</td><td class="p-2">unknown (200 hides)</td><td class="p-2">&lt; 0.5%</td><td class="p-2">P0</td></tr>
+<tr class="border-t"><td class="p-2">MTTR</td><td class="p-2">unmeasured</td><td class="p-2">&lt; 30 min</td><td class="p-2">P3</td></tr>
+</tbody></table>
+
+<h2 class="text-xl font-bold mt-6 mb-2">Acceptance per Phase</h2>
+<ul class="list-disc list-inside text-sm space-y-1">
+<li><b>P0:</b> No secrets in repo (gitleaks clean); ApiExceptionHandler returns 4xx/5xx for typed errors.</li>
+<li><b>P1:</b> Identity-mapping JSON cache hit ≥ 95%; circuit breaker open observed during chaos test.</li>
+<li><b>P2:</b> 95th-percentile WebSub callback &lt; 100 ms; PDF generated in worker pod.</li>
+<li><b>P3:</b> All 4 controller endpoints emit OTel spans; Prometheus shows <code>cards_generated_total</code>.</li>
+<li><b>P4:</b> Vault-injected secrets at runtime; <code>@PreAuthorize</code> on GET /{rid}.</li>
+<li><b>P5:</b> Coverage gate ≥ 80% in CI; PDFCardServiceImpl LOC &lt; 200.</li>
+</ul>
+
+<h2 class="text-xl font-bold mt-6 mb-2">SLA Targets</h2>
+<ul class="list-disc list-inside text-sm">
+<li>Availability: 99.9% monthly.</li>
+<li>Latency SLO: p99 GET &lt; 500 ms; p99 callback ack &lt; 200 ms.</li>
+<li>RPO 5 min, RTO 15 min.</li>
+</ul>
+
+<p class="mt-6"><a class="text-blue-600 hover:underline" href="modernization-strategy.html">→ Roadmap</a></p>
+<footer class="mt-12 border-t pt-4 text-sm text-gray-500">Generated 2026-05-12</footer>
+</main></body></html>

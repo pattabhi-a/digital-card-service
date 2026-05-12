@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>NFR Baseline</title><script src="https://cdn.tailwindcss.com"></script><script>tailwind.config={darkMode:'class'}</script></head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+<header class="sticky top-0 z-10 bg-white dark:bg-gray-800 shadow px-4 py-3 flex justify-between items-center border-b dark:border-gray-700">
+<div><a href="../README.md" class="text-blue-600 hover:underline">← Index</a> <span class="ml-3 text-sm text-gray-500">Evidence</span> <span class="ml-3 font-bold">nfr-baseline.html</span></div>
+<button onclick="document.documentElement.classList.toggle('dark')" class="px-3 py-1 border rounded">🌓</button></header>
+<main class="max-w-6xl mx-auto p-6">
+<h1 class="text-3xl font-bold mb-4">NFR Baseline</h1>
+<section class="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 p-4 mb-6 rounded"><b>TL;DR</b>
+<ul class="list-disc list-inside text-sm mt-2 space-y-1">
+<li>Overall maturity ~6.0/10. Strongest area: DevOps (Helm + Istio + probes). Weakest: Security and Performance.</li>
+<li>10 test files exist (under <code>src/test/java/io/mosip/digitalcard/test/</code>) — coverage low (no fitness target enforced).</li>
+<li>Health probes templated (deployment.yaml:117-131) but require values to enable.</li>
+<li>Replicas default to 1; no HPA spec found in templates dir.</li>
+</ul></section>
+
+<table class="w-full text-sm border">
+<thead class="bg-gray-200 dark:bg-gray-700"><tr><th class="p-2">NFR</th><th class="p-2">Score (0-10)</th><th class="p-2">Evidence</th><th class="p-2">Target</th></tr></thead>
+<tbody>
+<tr class="border-t"><td class="p-2 font-semibold">Scalability</td><td class="p-2">6</td><td class="p-2 font-mono text-xs">helm/digitalcard/values.yaml:27 replicaCount=1; DigitalCardApplication.java:29 pool=5; no HPA in templates</td><td class="p-2">8</td></tr>
+<tr class="border-t"><td class="p-2 font-semibold">Availability</td><td class="p-2">6.5</td><td class="p-2 font-mono text-xs">deployment.yaml:117-131 (start/live/ready probes templated); affinity blocks present 41-43</td><td class="p-2">8.5</td></tr>
+<tr class="border-t"><td class="p-2 font-semibold">Maintainability</td><td class="p-2">5.5</td><td class="p-2 font-mono text-xs">10 test files in src/test; god-services 300+ LOC; duplicate error code DCS-028 in DigitalCardServiceErrorCodes.java:66,68</td><td class="p-2">8</td></tr>
+<tr class="border-t"><td class="p-2 font-semibold">Security</td><td class="p-2">4.3</td><td class="p-2 font-mono text-xs">application-local1.properties:4,25,54 (plaintext secrets); ApiExceptionHandler.java:48,98 (200 on error); controller:93 (DB user log)</td><td class="p-2">8</td></tr>
+<tr class="border-t"><td class="p-2 font-semibold">Performance</td><td class="p-2">5</td><td class="p-2 font-mono text-xs">No @Async/@EnableCaching; sync PDF in PDFCardServiceImpl.java:342; no HikariCP tuning</td><td class="p-2">8</td></tr>
+<tr class="border-t"><td class="p-2 font-semibold">Observability</td><td class="p-2">5</td><td class="p-2 font-mono text-xs">helm/digitalcard/templates/servicemonitor.yaml present; SLF4J text logging; no tracing instrumentation in Java sources</td><td class="p-2">8.5</td></tr>
+<tr class="border-t"><td class="p-2 font-semibold">DevOps</td><td class="p-2">7.5</td><td class="p-2 font-mono text-xs">.github/workflows present; helm with affinity, sidecars, virtualservice (Istio)</td><td class="p-2">8.5</td></tr>
+<tr class="border-t"><td class="p-2 font-semibold">Reliability</td><td class="p-2">5.5</td><td class="p-2 font-mono text-xs">Re-subscription scheduled (DigitalCardInitializer.java:75); but errors swallowed at controller</td><td class="p-2">8</td></tr>
+</tbody></table>
+
+<p class="mt-6"><a class="text-blue-600 hover:underline" href="../strategy/architectural-assessment.html">→ Strategy: architectural-assessment</a></p>
+<footer class="mt-12 border-t pt-4 text-sm text-gray-500">Generated 2026-05-12 · branch <code>feat/hai-analysis-reports</code></footer>
+</main></body></html>

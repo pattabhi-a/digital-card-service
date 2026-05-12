@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Modernization Strategy</title><script src="https://cdn.tailwindcss.com"></script><script>tailwind.config={darkMode:'class'}</script></head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+<header class="sticky top-0 z-10 bg-white dark:bg-gray-800 shadow px-4 py-3 flex justify-between items-center border-b dark:border-gray-700">
+<div><a href="../README.md" class="text-blue-600 hover:underline">← Index</a> <span class="ml-3 text-sm text-gray-500">Strategy</span> <span class="ml-3 font-bold">modernization-strategy.html</span></div>
+<button onclick="document.documentElement.classList.toggle('dark')" class="px-3 py-1 border rounded">🌓</button></header>
+<main class="max-w-6xl mx-auto p-6">
+<h1 class="text-3xl font-bold mb-4">Modernization Strategy</h1>
+
+<img src="../diagrams/modernization-roadmap-timeline.svg" alt="Roadmap" class="mx-auto border bg-white p-2 rounded my-4 max-w-full"/>
+
+<table class="w-full text-sm border">
+<thead class="bg-gray-200 dark:bg-gray-700"><tr><th class="p-2">Phase</th><th class="p-2">Scope</th><th class="p-2">Weeks</th><th class="p-2">Cost</th><th class="p-2">Patterns</th></tr></thead>
+<tbody>
+<tr class="border-t bg-red-50 dark:bg-red-900/30"><td class="p-2 font-bold">P0 — Critical Security</td><td class="p-2">Remove secrets from repo, fix HTTP 200-on-error, scrub DB-user log</td><td class="p-2">2</td><td class="p-2">$10K</td><td class="p-2"><a class="text-blue-600 hover:underline" href="../patterns/risk-synthesis.html">risk</a></td></tr>
+<tr class="border-t"><td class="p-2 font-bold">P1 — Performance Foundation</td><td class="p-2">Caching (Caffeine), HikariCP tuning, Resilience4j</td><td class="p-2">4</td><td class="p-2">$25K</td><td class="p-2"><a class="text-blue-600 hover:underline" href="../patterns/modernization-patterns.html">modernization</a></td></tr>
+<tr class="border-t"><td class="p-2 font-bold">P2 — Async Processing</td><td class="p-2">Kafka topic, PDF worker pod, outbox</td><td class="p-2">4</td><td class="p-2">$30K</td><td class="p-2"><a class="text-blue-600 hover:underline" href="../patterns/scalability-blueprint.html">scalability</a></td></tr>
+<tr class="border-t"><td class="p-2 font-bold">P3 — Observability</td><td class="p-2">JSON logs, OpenTelemetry, custom metrics</td><td class="p-2">3</td><td class="p-2">$18K</td><td class="p-2"><a class="text-blue-600 hover:underline" href="../patterns/observability-strategy.html">observability</a></td></tr>
+<tr class="border-t"><td class="p-2 font-bold">P4 — Security Hardening</td><td class="p-2">Vault, mTLS, Spring Security on GET, VC verify default-on</td><td class="p-2">3</td><td class="p-2">$20K</td><td class="p-2"><a class="text-blue-600 hover:underline" href="../evidences/security-analysis.html">evidence</a></td></tr>
+<tr class="border-t"><td class="p-2 font-bold">P5 — Code Quality</td><td class="p-2">Split god-services, enums, ≥80% coverage gate</td><td class="p-2">4</td><td class="p-2">$25K</td><td class="p-2"><a class="text-blue-600 hover:underline" href="../patterns/technical-patterns-synthesis.html">tech synthesis</a></td></tr>
+</tbody></table>
+
+<p class="text-sm mt-4"><b>Total:</b> 20 weeks · $128K · delivers 10× throughput, security score 4.3→8.0, observability 5→8.5.</p>
+
+<p class="mt-6"><a class="text-blue-600 hover:underline" href="success-metrics.html">→ Success metrics</a> | <a class="text-blue-600 hover:underline" href="decision-records.html">→ ADRs</a></p>
+<footer class="mt-12 border-t pt-4 text-sm text-gray-500">Generated 2026-05-12</footer>
+</main></body></html>

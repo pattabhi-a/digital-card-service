@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>DevOps Maturity</title><script src="https://cdn.tailwindcss.com"></script><script>tailwind.config={darkMode:'class'}</script></head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+<header class="sticky top-0 z-10 bg-white dark:bg-gray-800 shadow px-4 py-3 flex justify-between items-center border-b dark:border-gray-700">
+<div><a href="../README.md" class="text-blue-600 hover:underline">← Index</a> <span class="ml-3 text-sm text-gray-500">Pattern</span> <span class="ml-3 font-bold">devops-maturity.html</span></div>
+<button onclick="document.documentElement.classList.toggle('dark')" class="px-3 py-1 border rounded">🌓</button></header>
+<main class="max-w-6xl mx-auto p-6">
+<h1 class="text-3xl font-bold mb-4">DevOps Maturity</h1>
+<section class="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 p-4 mb-6 rounded"><b>TL;DR</b>
+<ul class="list-disc list-inside text-sm mt-2 space-y-1">
+<li>GitHub Actions present in <code>.github/workflows/</code>; Helm chart with Istio VirtualService and ServiceMonitor — solid foundation.</li>
+<li>Gaps: no HPA template, no automated security scan gate, no canary strategy.</li>
+<li>Maturity score: 7.5/10.</li>
+</ul></section>
+
+<table class="w-full text-sm border">
+<thead class="bg-gray-200 dark:bg-gray-700"><tr><th class="p-2">Capability</th><th class="p-2">State</th><th class="p-2">Evidence</th><th class="p-2">Improvement</th></tr></thead>
+<tbody>
+<tr class="border-t"><td class="p-2">CI</td><td class="p-2">Present</td><td class="p-2 font-mono text-xs">.github/workflows/</td><td class="p-2">Add coverage gate ≥80%</td></tr>
+<tr class="border-t"><td class="p-2">Container build</td><td class="p-2">Single-stage Dockerfile</td><td class="p-2 font-mono text-xs">Dockerfile (4023 bytes)</td><td class="p-2">Multi-stage; distroless base</td></tr>
+<tr class="border-t"><td class="p-2">Helm chart</td><td class="p-2">Comprehensive</td><td class="p-2 font-mono text-xs">helm/digitalcard/templates/{deployment,service,virtualservice,servicemonitor,clusterrolebinding}.yaml</td><td class="p-2">Add hpa.yaml + networkpolicy.yaml</td></tr>
+<tr class="border-t"><td class="p-2">Service mesh</td><td class="p-2">Istio templated</td><td class="p-2 font-mono text-xs">helm/.../virtualservice.yaml</td><td class="p-2">mTLS strict mode</td></tr>
+<tr class="border-t"><td class="p-2">Probes</td><td class="p-2">Templated</td><td class="p-2 font-mono text-xs">deployment.yaml:117-131</td><td class="p-2">Tune thresholds; add startup probe</td></tr>
+<tr class="border-t"><td class="p-2">Replica strategy</td><td class="p-2">Static 1</td><td class="p-2 font-mono text-xs">helm/values.yaml:27</td><td class="p-2">≥3 + HPA</td></tr>
+<tr class="border-t"><td class="p-2">Secret mgmt</td><td class="p-2">extraEnvVarsSecret hook present</td><td class="p-2 font-mono text-xs">deployment.yaml:107-110</td><td class="p-2">Wire to ExternalSecrets+Vault</td></tr>
+<tr class="border-t"><td class="p-2">Security scan</td><td class="p-2">Manual</td><td class="p-2 font-mono text-xs">no Trivy/Snyk gate found</td><td class="p-2">Block on Critical/High CVE</td></tr>
+</tbody></table>
+
+<p class="mt-6"><a class="text-blue-600 hover:underline" href="../strategy/modernization-strategy.html">→ Strategy</a></p>
+<footer class="mt-12 border-t pt-4 text-sm text-gray-500">Generated 2026-05-12</footer>
+</main></body></html>

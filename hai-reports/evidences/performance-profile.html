@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Performance Profile</title><script src="https://cdn.tailwindcss.com"></script><script>tailwind.config={darkMode:'class'}</script></head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+<header class="sticky top-0 z-10 bg-white dark:bg-gray-800 shadow px-4 py-3 flex justify-between items-center border-b dark:border-gray-700">
+<div><a href="../README.md" class="text-blue-600 hover:underline">← Index</a> <span class="ml-3 text-sm text-gray-500">Evidence</span> <span class="ml-3 font-bold">performance-profile.html</span></div>
+<button onclick="document.documentElement.classList.toggle('dark')" class="px-3 py-1 border rounded">🌓</button></header>
+<main class="max-w-6xl mx-auto p-6">
+<h1 class="text-3xl font-bold mb-4">Performance Profile</h1>
+<section class="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 p-4 mb-6 rounded"><b>TL;DR</b>
+<ul class="list-disc list-inside text-sm mt-2 space-y-1">
+<li>PDF generation is fully synchronous on the WebSub callback thread (controller:88 → service:138 → PDFCardServiceImpl:342).</li>
+<li>No <code>@EnableCaching</code>, no <code>@Async</code> anywhere in src/main/java (verified via grep).</li>
+<li>Single thread pool of size 5 for re-subscription scheduling only (DigitalCardApplication.java:29).</li>
+<li>Helm <code>replicaCount: 1</code> (helm/digitalcard/values.yaml:27) — no horizontal scale by default.</li>
+<li>Each generation makes 3+ blocking REST calls (DataShare fetch, decrypt, PDF sign) on the request thread.</li>
+</ul></section>
+
+<h2 class="text-xl font-bold mt-6 mb-2">Bottlenecks</h2>
+<table class="w-full text-sm border">
+<thead class="bg-gray-200 dark:bg-gray-700"><tr><th class="p-2">Bottleneck</th><th class="p-2">File:Line</th><th class="p-2">Current</th><th class="p-2">Target</th></tr></thead>
+<tbody>
+<tr class="border-t"><td class="p-2">Synchronous PDF on callback</td><td class="p-2 font-mono text-xs">DigitalCardServiceImpl.java:138</td><td class="p-2">pdfBytes computed inline, blocks WebSub thread</td><td class="p-2">Push to queue (Kafka/RabbitMQ); ack 202 immediately</td></tr>
+<tr class="border-t"><td class="p-2">Blocking REST decrypt</td><td class="p-2 font-mono text-xs">EncryptionUtil.java:84</td><td class="p-2">restClient.postApi (RestTemplate, sync)</td><td class="p-2">WebClient + reactive; or batch decrypt</td></tr>
+<tr class="border-t"><td class="p-2">PDF signing roundtrip</td><td class="p-2 font-mono text-xs">PDFCardServiceImpl.java:360</td><td class="p-2">restApiClient.postApi(ApiName.PDFSIGN, ...) per card</td><td class="p-2">Local signer or batch; cache signing cert</td></tr>
+<tr class="border-t"><td class="p-2">Identity mapping JSON re-fetch</td><td class="p-2 font-mono text-xs">PDFCardServiceImpl.java:293</td><td class="p-2"><code>utility.getIdentityMappingJson(...)</code> on every card</td><td class="p-2">Cache (Caffeine/Redis), TTL 1h</td></tr>
+<tr class="border-t"><td class="p-2">No HikariCP tuning</td><td class="p-2 font-mono text-xs">application-local1.properties</td><td class="p-2">Defaults (10 conn)</td><td class="p-2">Tune to replica × pool sizing</td></tr>
+<tr class="border-t"><td class="p-2">Single-replica Helm default</td><td class="p-2 font-mono text-xs">helm/digitalcard/values.yaml:27</td><td class="p-2"><code>replicaCount: 1</code></td><td class="p-2">≥3 + HPA on CPU+queue depth</td></tr>
+<tr class="border-t"><td class="p-2">No batch in DB writes</td><td class="p-2 font-mono text-xs">DigitalCardServiceImpl.java:207,224</td><td class="p-2">save() per call</td><td class="p-2">Batch via JPA, or transactional outbox</td></tr>
+<tr class="border-t"><td class="p-2">Scheduler pool only 5</td><td class="p-2 font-mono text-xs">DigitalCardApplication.java:29</td><td class="p-2"><code>setPoolSize(5)</code></td><td class="p-2">Separate executor for PDF (≥20)</td></tr>
+</tbody></table>
+
+<h2 class="text-xl font-bold mt-6 mb-2">Verified Absence (negative findings)</h2>
+<ul class="list-disc list-inside text-sm">
+<li><code>grep "@EnableCaching" src/main/java/</code> → 0 matches.</li>
+<li><code>grep "@Async" src/main/java/</code> → 0 matches.</li>
+<li><code>grep "HikariCP" src/main/java/</code> → 0 (using defaults).</li>
+<li>Only <code>@Transactional</code> usage: <code>DigitalCardTransactionRepository.java:23,28</code>.</li>
+</ul>
+
+<h2 class="text-xl font-bold mt-6 mb-2">Cross-references</h2>
+<ul class="list-disc list-inside">
+<li><a class="text-blue-600 hover:underline" href="../patterns/scalability-blueprint.html">→ Pattern: scalability-blueprint</a></li>
+<li><a class="text-blue-600 hover:underline" href="../patterns/modernization-patterns.html">→ Pattern: modernization-patterns (async PDF)</a></li>
+</ul>
+<footer class="mt-12 border-t pt-4 text-sm text-gray-500">Generated 2026-05-12 · branch <code>feat/hai-analysis-reports</code></footer>
+</main></body></html>
