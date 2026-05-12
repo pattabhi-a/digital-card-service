@@ -68,7 +68,7 @@ jobs:
           echo "  User: $username"
           echo "  Token length: ${#api_token}"
 
-          response=$(curl -s -w "\n%{http_code}" \
+          response=$(curl -sL -w "\n%{http_code}" \
             "$API_URL" \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $api_token")
@@ -95,7 +95,7 @@ jobs:
           # Test 2: Try to get SD space using Atlassian API endpoint
           echo ""
           echo "Test 2: Get SD space (using Atlassian API endpoint)"
-          response=$(curl -s -w "\n%{http_code}" \
+          response=$(curl -sL -w "\n%{http_code}" \
             "https://api.atlassian.com/ex/confluence/$CLOUD_ID/spaces?keys=SD" \
             -H "Content-Type: application/json" \
             -H "Authorization: Bearer $api_token")
