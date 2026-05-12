@@ -43,6 +43,7 @@ jobs:
 
       - name: Test Confluence Connection
         run: |
+          echo "Testing with newly regenerated API token..."
           base_url="${{ secrets.CONFLUENCE_BASE_URL }}"
           username="${{ secrets.CONFLUENCE_USERNAME }}"
           api_token="${{ secrets.CONFLUENCE_API_TOKEN }}"
