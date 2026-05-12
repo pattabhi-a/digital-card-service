@@ -61,9 +61,14 @@ jobs:
           # Test 1: Get current user (simplest test, no special permissions needed)
           echo ""
           echo "Test 1: Get current user info"
+          echo "  URL: $base_url/wiki/rest/api/user/current"
+          echo "  User: $username"
+          echo "  Token length: ${#api_token}"
+
           response=$(curl -s -w "\n%{http_code}" -u "$username:$api_token" \
             "$base_url/wiki/rest/api/user/current" \
-            -H "Content-Type: application/json")
+            -H "Content-Type: application/json" \
+            -H "User-Agent: GitHub-Actions")
 
           http_code=$(echo "$response" | tail -n1)
           body=$(echo "$response" | head -n-1)
@@ -72,9 +77,16 @@ jobs:
           if [ "$http_code" = "200" ]; then
             user=$(echo "$body" | grep -o '"displayName":"[^"]*"' | cut -d'"' -f4)
             echo "  ✅ SUCCESS! Authenticated as: $user"
+          elif [ "$http_code" = "403" ]; then
+            echo "  ❌ 403 Forbidden - checking error message..."
+            error_msg=$(echo "$body" | grep -o '"message":"[^"]*"' | head -1)
+            echo "  Error: $error_msg"
+            echo "  Full body:"
+            echo "$body" | head -c 500
           else
-            echo "  Full response:"
-            echo "$body"
+            echo "  Status $http_code"
+            echo "  Response:"
+            echo "$body" | head -c 500
           fi
 
           # Test 2: Try to get SD space
